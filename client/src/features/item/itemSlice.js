@@ -8,7 +8,7 @@ const initialState = {
   error: null,
 };
 
-const itemsSlice = createSlice({
+const itemSlice = createSlice({
   name: "items",
   initialState,
   reducers: {
@@ -32,6 +32,6 @@ const itemsSlice = createSlice({
 });
 
 export const { setItems, setLoading, setError, filterItems } =
-  itemsSlice.actions;
+  itemSlice.actions;
 
-export default itemsSlice.reducer;
+export default itemSlice.reducer;
