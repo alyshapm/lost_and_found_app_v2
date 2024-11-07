@@ -6,12 +6,39 @@ import {
   Avatar,
   Card,
 } from "@material-tailwind/react";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import BaseTable from "../../components/admin/BaseTable";
+import ConfirmationDialog from "../../components/common/ConfirmationDialog";
+import EditUserDialog from "../../components/admin/EditUserDialog";
+
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import users from "../../data/users";
 
 function UserList() {
   const [personalInfoData, setPersonalInfoData] = useState([]);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveUser = (updatedUser) => {
+    // Logic to update the user data in the backend or state
+    console.log("Updated User:", updatedUser);
+  };
+
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    // Logic to delete the user, e.g., calling API or updating state
+    console.log("Deleting user:", userToDelete);
+  };
 
   useEffect(() => {
     // Extract and flatten data for each user
@@ -21,7 +48,6 @@ function UserList() {
       _id: user._id?.$oid, // Flatten `_id`
     }));
     setPersonalInfoData(extractedData);
-    console.log("Before useEffect: ", extractedData);
   }, []);
 
   const columns = [
@@ -82,7 +108,7 @@ function UserList() {
           variant="ghost"
           color={status === "active" ? "green" : "gray"}
           value={status === "active" ? "ACTIVE" : "INACTIVE"}
-          className="uppercase font-bold"
+          className="uppercase font-bold w-max"
         />
       ),
     },
@@ -102,15 +128,15 @@ function UserList() {
         <div className="flex space-x-2">
           <IconButton
             variant="text"
-            color="blue-gray"
-            onClick={() => handleEdit(user)}
+            color="blue"
+            onClick={() => handleEditClick(user)}
           >
             <PencilIcon className="h-4 w-4" />
           </IconButton>
           <IconButton
             variant="text"
             color="red"
-            onClick={() => handleDelete(user)}
+            onClick={() => handleDeleteClick(user)}
           >
             <TrashIcon className="h-4 w-4" />
           </IconButton>
@@ -118,14 +144,6 @@ function UserList() {
       ),
     },
   ];
-
-  const handleEdit = (user) => {
-    // Edit user logic here
-  };
-
-  const handleDelete = (user) => {
-    // Delete user logic here
-  };
 
   return (
     <div className="">
@@ -135,6 +153,20 @@ function UserList() {
       <Card>
         <BaseTable columns={columns} data={personalInfoData} />
       </Card>
+
+      <EditUserDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        user={selectedUser}
+        onSave={handleSaveUser}
+      />
+
+      <ConfirmationDialog
+        isOpen={isConfirmDialogOpen}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={confirmDelete}
+        message={`Are you sure you want to delete "${userToDelete?.name}"?`}
+      />
     </div>
   );
 }

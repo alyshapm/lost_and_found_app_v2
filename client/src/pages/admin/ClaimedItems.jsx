@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Typography, Card } from "@material-tailwind/react";
+import { Typography, Card, Chip } from "@material-tailwind/react";
 import BaseTable from "../../components/admin/BaseTable";
 import ItemDetailDialog from "../../components/admin/ItemDetailDialog";
 import items from "../../data/items";
@@ -34,7 +34,27 @@ const ClaimedItems = () => {
     { header: "Category", field: "category" },
     { header: "Campus", field: "campus" },
     { header: "Found At", field: "foundAt" },
-    { header: "Status", field: "status" },
+    {
+      header: "Status",
+      field: "status",
+      render: (status) => (
+        <Chip
+          size="sm"
+          variant="ghost"
+          color={
+            status === "claimed"
+              ? "green"
+              : status === "waiting for approval"
+              ? "amber"
+              : status === "on hold"
+              ? "blue"
+              : "gray"
+          }
+          value={status.toUpperCase()}
+          className="uppercase font-bold w-max"
+        />
+      ),
+    },
   ];
 
   return (

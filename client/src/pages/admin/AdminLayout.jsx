@@ -24,6 +24,7 @@ import {
   PowerIcon,
   UsersIcon,
   ListBulletIcon,
+  ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/react/24/solid";
 
 function AdminLayout() {
@@ -56,6 +57,17 @@ function AdminLayout() {
       label: "Claimed Items",
       path: "/admin/claimed-items",
       badge: 14,
+    },
+    {
+      icon: ChatBubbleBottomCenterTextIcon,
+      label: "Active Meetings",
+      path: "/admin/meetings",
+      badge: 5,
+    },
+    {
+      icon: ChatBubbleBottomCenterTextIcon,
+      label: "Meetings History",
+      path: "/admin/meetings-history",
     },
     { icon: UsersIcon, label: "User List", path: "/admin/user-list" },
     { icon: ListBulletIcon, label: "Back Log", path: "/admin/back-log" },

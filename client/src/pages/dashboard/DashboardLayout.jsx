@@ -4,13 +4,13 @@ import {
   Navbar,
   Typography,
   IconButton,
-  Button,
   Menu,
   MenuHandler,
   MenuList,
   MenuItem,
   Avatar,
   Badge,
+  Button,
 } from "@material-tailwind/react";
 import {
   BellIcon,
@@ -18,80 +18,96 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import AppLogo from "../../assets/app-logo.png";
+import notifications from "../../data/notifications";
 
 function DashboardLayout() {
+  const [notificationList, setNotificationList] = useState(notifications);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleMarkAsRead = (id) => {
+    setNotificationList((prevList) =>
+      prevList.map((notification) =>
+        notification._id.$oid === id
+          ? { ...notification, read: true }
+          : notification
+      )
+    );
+  };
+
+  const getNotificationLink = (type) => {
+    if (type === "verification_request") return "/dashboard/found-items";
+    if (type === "meeting_completed") return "/dashboard/claimed-items";
+    return null;
+  };
+
+  const displayedNotifications = notificationList.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar className="max-w-full rounded-none px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-y-4 text-blue-gray-900">
-          <img
-            src={AppLogo}
-            as={Link}
-            to="/dashboard"
-            alt="Logo"
-            href="#"
-            className="h-10 inline-block mr-2"
-          />
-          {/* <Typography
-            as={Link}
-            to="/dashboard"
-            variant="h6"
-            className="mr-4 ml-2 cursor-pointer py-1.5"
-          >
-            BINUS Lost and Found
-          </Typography> */}
-          <div className="ml-auto flex gap-1 md:mr-4">
+        <div className="flex items-center justify-between gap-y-4 text-blue-gray-900">
+          <img src={AppLogo} alt="Logo" className="h-10 mr-2" />
+          <div className="ml-auto flex gap-1">
+            {/* Notification Icon with Badge */}
             <Menu>
               <MenuHandler>
                 <IconButton variant="text" color="blue-gray">
-                  <Badge content="5" withBorder>
-                    <BellIcon className="h-4 w-4" />
+                  <Badge
+                    content={
+                      notificationList.filter(
+                        (notification) => !notification.read
+                      ).length
+                    }
+                    withBorder
+                  >
+                    <BellIcon className="h-5 w-5" />
                   </Badge>
                 </IconButton>
               </MenuHandler>
-              <MenuList className="flex flex-col gap-2">
-                <MenuItem className="flex items-center gap-4 py-2 pl-2 pr-8">
-                  <Avatar
-                    variant="circular"
-                    alt="New item"
-                    src="/placeholder.svg?height=48&width=48"
-                  />
-                  <div className="flex flex-col gap-1">
-                    <Typography
-                      variant="small"
-                      color="gray"
-                      className="font-semibold"
-                    >
-                      New item found: Blue Backpack
-                    </Typography>
-                    <Typography className="flex items-center gap-1 text-sm font-medium text-blue-gray-500">
-                      13 minutes ago
-                    </Typography>
-                  </div>
-                </MenuItem>
-                <MenuItem className="flex items-center gap-4 py-2 pl-2 pr-8">
-                  <Avatar
-                    variant="circular"
-                    alt="Item claimed"
-                    src="/placeholder.svg?height=48&width=48"
-                  />
-                  <div className="flex flex-col gap-1">
-                    <Typography
-                      variant="small"
-                      color="gray"
-                      className="font-semibold"
-                    >
-                      Your item "Textbook" has been claimed
-                    </Typography>
-                    <Typography className="flex items-center gap-1 text-sm font-medium text-blue-gray-500">
-                      2 hours ago
-                    </Typography>
-                  </div>
-                </MenuItem>
+              <MenuList className="flex flex-col gap-2 w-80">
+                {displayedNotifications.map((notification) => (
+                  <Link
+                    key={notification._id.$oid}
+                    to={getNotificationLink(notification.type)}
+                    onClick={() => handleMarkAsRead(notification._id.$oid)}
+                    className={`flex flex-col gap-2 p-4 border-b ${
+                      notification.read ? "bg-gray-100" : "bg-white"
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex flex-col gap-1">
+                        <Typography
+                          variant="small"
+                          color="gray"
+                          className="font-semibold"
+                        >
+                          {notification.title}
+                        </Typography>
+                        <Typography className="text-sm text-blue-gray-500">
+                          {notification.message}
+                        </Typography>
+                        {(notification.type === "verification_request" ||
+                          notification.type === "meeting_completed") && (
+                          <Typography variant="small" color="blue">
+                            Click here to verify
+                          </Typography>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {notificationList.length > 3 && (
+                  <Link
+                    to="/dashboard/notifications"
+                    className="text-blue-600 text-center py-2"
+                  >
+                    See All Notifications
+                  </Link>
+                )}
               </MenuList>
             </Menu>
+
+            {/* Profile Menu */}
             <Menu>
               <MenuHandler>
                 <Button
@@ -106,12 +122,6 @@ function DashboardLayout() {
                     className="border border-blue-500 p-0.5"
                     src="/placeholder.svg?height=32&width=32"
                   />
-                  <ChevronDownIcon
-                    strokeWidth={2.5}
-                    className={`h-3 w-3 transition-transform ${
-                      isMenuOpen ? "rotate-180" : ""
-                    }`}
-                  />
                 </Button>
               </MenuHandler>
               <MenuList>
@@ -121,22 +131,14 @@ function DashboardLayout() {
                     <Link to="/dashboard/profile">My Profile</Link>
                   </Typography>
                 </MenuItem>
-                <MenuItem className="flex items-center gap-2">
-                  <Typography variant="small" className="font-normal">
-                    <Link to="/dashboard/claimed-items">Claimed Items</Link>
-                  </Typography>
+                <MenuItem>
+                  <Link to="/dashboard/claimed-items">Claimed Items</Link>
                 </MenuItem>
-                <MenuItem className="flex items-center gap-2">
-                  <Typography variant="small" className="font-normal">
-                    <Link to="/dashboard/found-items">Found Items</Link>
-                  </Typography>
+                <MenuItem>
+                  <Link to="/dashboard/found-items">Found Items</Link>
                 </MenuItem>
                 <hr className="my-2 border-blue-gray-50" />
-                <MenuItem className="flex items-center gap-2 ">
-                  <Typography variant="small" className="font-normal">
-                    Sign Out
-                  </Typography>
-                </MenuItem>
+                <MenuItem>Sign Out</MenuItem>
               </MenuList>
             </Menu>
           </div>

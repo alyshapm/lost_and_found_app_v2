@@ -1,6 +1,5 @@
-// BaseTable.jsx
 import React from "react";
-import { Typography, Chip } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 
 const BaseTable = ({ columns, data, onRowClick, actions }) => (
   <table className="w-full min-w-max table-auto text-left">
@@ -42,28 +41,7 @@ const BaseTable = ({ columns, data, onRowClick, actions }) => (
         >
           {columns.map((col) => (
             <td key={col.field} className="p-4">
-              {col.field === "status" ? (
-                <div className="w-max">
-                  <Chip
-                    size="sm"
-                    variant="ghost"
-                    value={item[col.field]}
-                    color={
-                      item[col.field] === "claimed"
-                        ? "green"
-                        : item[col.field] === "waiting for approval"
-                        ? "amber"
-                        : item[col.field] === "on hold"
-                        ? "blue"
-                        : "gray"
-                    }
-                  />
-                </div>
-              ) : col.render ? (
-                col.render(item[col.field], item)
-              ) : (
-                item[col.field]
-              )}
+              {col.render ? col.render(item[col.field], item) : item[col.field]}
             </td>
           ))}
           {actions && (

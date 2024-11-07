@@ -33,7 +33,7 @@ const BackLog = () => {
           variant="ghost"
           color={notificationTypeColors[type] || "gray"}
           value={type.replace(/_/g, " ").toUpperCase()}
-          className="uppercase font-bold"
+          className="uppercase font-bold w-max"
         />
       ),
     },
@@ -56,7 +56,7 @@ const BackLog = () => {
           variant="ghost"
           color={read ? "green" : "red"}
           value={read ? "READ" : "UNREAD"}
-          className="uppercase font-bold"
+          className="uppercase font-bold w-max"
         />
       ),
     },

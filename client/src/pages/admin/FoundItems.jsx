@@ -1,17 +1,27 @@
 import React, { useState } from "react";
-import { Typography, Button, Card, IconButton } from "@material-tailwind/react";
-// import ItemTable from "../../components/admin/ItemTable";
+import {
+  Typography,
+  Button,
+  Card,
+  IconButton,
+  Chip,
+} from "@material-tailwind/react";
 import BaseTable from "../../components/admin/BaseTable";
 import ItemDetailDialog from "../../components/admin/ItemDetailDialog";
 import AddItemDialog from "../../components/admin/AddItemDialog";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import EditItemDialog from "../../components/admin/EditItemDialog";
+import ConfirmationDialog from "../../components/common/ConfirmationDialog";
 
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import items from "../../data/items";
 
 function FoundItems() {
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -20,6 +30,25 @@ function FoundItems() {
 
   const handleAddItem = () => {
     setIsAddItemDialogOpen(true);
+  };
+
+  const handleEditClick = (item) => {
+    setSelectedItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = (updatedItem) => {
+    // Logic to save the edited item, e.g., sending it to the backend or updating state
+  };
+
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    // Logic to delete the item, e.g., calling API or updating state
+    console.log("Deleting item:", itemToDelete);
   };
 
   const columns = [
@@ -42,7 +71,27 @@ function FoundItems() {
     { header: "Category", field: "category" },
     { header: "Campus", field: "campus" },
     { header: "Found At", field: "foundAt" },
-    { header: "Status", field: "status" },
+    {
+      header: "Status",
+      field: "status",
+      render: (status) => (
+        <Chip
+          size="sm"
+          variant="ghost"
+          color={
+            status === "claimed"
+              ? "green"
+              : status === "waiting for approval"
+              ? "amber"
+              : status === "on hold"
+              ? "blue"
+              : "gray"
+          }
+          value={status.toUpperCase()}
+          className="uppercase font-bold w-max"
+        />
+      ),
+    },
   ];
 
   const actions = [
@@ -52,7 +101,7 @@ function FoundItems() {
         color="blue"
         onClick={(e) => {
           e.stopPropagation();
-          handleEditClick(item); // Trigger delete confirmation
+          handleEditClick(item);
         }}
       >
         <PencilIcon className="h-4 w-4" />
@@ -64,7 +113,7 @@ function FoundItems() {
         color="red"
         onClick={(e) => {
           e.stopPropagation();
-          handleDeleteClick(item); // Trigger delete confirmation
+          handleDeleteClick(item);
         }}
       >
         <TrashIcon className="h-4 w-4" />
@@ -98,6 +147,20 @@ function FoundItems() {
       <AddItemDialog
         isOpen={isAddItemDialogOpen}
         onClose={() => setIsAddItemDialogOpen(false)}
+      />
+
+      <EditItemDialog
+        isOpen={isEditDialogOpen}
+        item={selectedItem}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleSaveEdit}
+      />
+
+      <ConfirmationDialog
+        isOpen={isConfirmDialogOpen}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={confirmDelete}
+        message={`Are you sure you want to delete "${itemToDelete?.name}"?`}
       />
     </>
   );

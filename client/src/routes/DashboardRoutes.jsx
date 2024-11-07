@@ -6,6 +6,7 @@ import ClaimedItems from "../pages/dashboard/ClaimedItems";
 import FoundItems from "../pages/dashboard/FoundItems";
 import Profile from "../pages/dashboard/Profile";
 import Dashboard from "../pages/dashboard/Dashboard";
+import Notifications from "../pages/dashboard/Notifications";
 
 export const DashboardRoutes = () => {
   return (
@@ -15,6 +16,7 @@ export const DashboardRoutes = () => {
         <Route path="claimed-items" element={<ClaimedItems />} />
         <Route path="found-items" element={<FoundItems />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
       </Route>
     </Routes>
   );

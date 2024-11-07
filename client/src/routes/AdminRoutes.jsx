@@ -8,6 +8,8 @@ import ClaimedItems from "../pages/admin/ClaimedItems";
 import UserList from "../pages/admin/UserList";
 import AdminProfile from "../pages/admin/AdminProfile";
 import BackLog from "../pages/admin/BackLog";
+import ActiveMeetings from "../pages/admin/ActiveMeetings";
+import MeetingsHistory from "../pages/admin/MeetingsHistory";
 
 export const AdminRoutes = () => {
   return (
@@ -19,6 +21,9 @@ export const AdminRoutes = () => {
         <Route path="user-list" element={<UserList />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="back-log" element={<BackLog />} />
+        <Route path="meetings" element={<ActiveMeetings />} />
+        <Route path="meetings-history" element={<MeetingsHistory />} />
+
         {/* Add routes for other pages */}
       </Route>
     </Routes>
