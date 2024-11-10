@@ -49,7 +49,6 @@ const AuthService = {
     try {
         const response = await userApi.get('/logout')
         localStorage.removeItem('user')
-    
         return response.data
     }catch (error) {
         console.error("Error Logging Out", error);

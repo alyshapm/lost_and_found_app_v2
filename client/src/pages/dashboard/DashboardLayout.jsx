@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate} from "react-router-dom";
 import {
   Navbar,
   Typography,
@@ -19,10 +19,14 @@ import {
 } from "@heroicons/react/24/outline";
 import AppLogo from "../../assets/app-logo.png";
 import notifications from "../../data/notifications";
+import { logout } from "../../features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 function DashboardLayout() {
   const [notificationList, setNotificationList] = useState(notifications);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleMarkAsRead = (id) => {
     setNotificationList((prevList) =>
@@ -32,6 +36,12 @@ function DashboardLayout() {
           : notification
       )
     );
+  };
+
+  const handleLogout = () => {
+
+    dispatch(logout());
+    navigate("/");
   };
 
   const getNotificationLink = (type) => {
@@ -138,7 +148,7 @@ function DashboardLayout() {
                   <Link to="/dashboard/found-items">Found Items</Link>
                 </MenuItem>
                 <hr className="my-2 border-blue-gray-50" />
-                <MenuItem>Sign Out</MenuItem>
+                <MenuItem onClick={() => handleLogout()}>Sign Out</MenuItem>
               </MenuList>
             </Menu>
           </div>
