@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 // Create an axios instance with common config
 const axiosInstance = axios.create({
   baseURL: "http://localhost:8000", // Replace with your FastAPI base URL
@@ -7,16 +8,31 @@ const axiosInstance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Interceptors to handle tokens or errors
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+export const setupAxiosInstance = () => {
+ // Get token from Redux store
+  
+  axiosInstance.interceptors.request.use(
+
+        //   if (!token) {
+    //     config.headers["Authorization"] = `Bearer ${accessToken}`;
+    //   } else {
+    //     config.headers["Authorization"] = `Bearer ${token}`;
+    //   }
+    (config) => {
+
+      // const token = store.getState()?.token?.value
+    
+      config.headers["Authorization"] = `Bearer ${token}`; // Dynamically set the token
+      
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  return axiosInstance; // Return the configured axios instance
+};
 
 export default axiosInstance;
+
+
+

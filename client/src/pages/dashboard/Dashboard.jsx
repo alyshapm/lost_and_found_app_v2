@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchItems } from "../../features/item/itemSlice";
+import { getUserInfor } from "../../features/user/userSlice";
 import {
   Typography,
   Button,
@@ -18,30 +21,30 @@ import ClaimItemDialog from "../../components/dashboard/ClaimitemDialog";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-// Sample data
-const foundItems = [
-  {
-    id: 1,
-    name: "Blue Backpack",
-    location: "Library",
-    dateFound: "2023-10-15",
-  },
-  {
-    id: 2,
-    name: "iPhone 12",
-    location: "Student Center",
-    dateFound: "2023-10-16",
-  },
-  { id: 3, name: "Water Bottle", location: "Gym", dateFound: "2023-10-17" },
-  { id: 4, name: "Textbook", location: "Cafeteria", dateFound: "2023-10-18" },
-  { id: 5, name: "Umbrella", location: "Parking Lot", dateFound: "2023-10-19" },
-  {
-    id: 6,
-    name: "Laptop Charger",
-    location: "Lecture Hall",
-    dateFound: "2023-10-20",
-  },
-];
+// // Sample data
+// const foundItems = [
+//   {
+//     id: 1,
+//     name: "Blue Backpack",
+//     location: "Library",
+//     dateFound: "2023-10-15",
+//   },
+//   {
+//     id: 2,
+//     name: "iPhone 12",
+//     location: "Student Center",
+//     dateFound: "2023-10-16",
+//   },
+//   { id: 3, name: "Water Bottle", location: "Gym", dateFound: "2023-10-17" },
+//   { id: 4, name: "Textbook", location: "Cafeteria", dateFound: "2023-10-18" },
+//   { id: 5, name: "Umbrella", location: "Parking Lot", dateFound: "2023-10-19" },
+//   {
+//     id: 6,
+//     name: "Laptop Charger",
+//     location: "Lecture Hall",
+//     dateFound: "2023-10-20",
+//   },
+// ];
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,6 +62,16 @@ function Dashboard() {
     "Parking Lot",
     "Lecture Hall",
   ];
+  const dispatch = useDispatch();
+  const { filteredItems, isLoading, error } = useSelector((state) => state.items);
+  const {userInfor} = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(fetchItems());
+  }, [dispatch]);
+
+
+  
 
   const handleLocationFilterChange = (location) => {
     if (selectedLocations.includes(location)) {
@@ -72,15 +85,17 @@ function Dashboard() {
     setIsFilterDialogOpen(false);
   };
 
-  const filteredItems = foundItems.filter(
+  const filteredItemsSearch = filteredItems.items?.filter(
     (item) =>
-      (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedLocations.length === 0 ||
-        selectedLocations.includes(item.location)) &&
+      // Safely check for name and location
+      // item.founded_by === userInfor.data._id &&
+      (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+       item.location?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedLocations.length === 0 || selectedLocations.includes(item.location)) &&
       (!dateFilter[0] || new Date(item.dateFound) >= dateFilter[0]) &&
       (!dateFilter[1] || new Date(item.dateFound) <= dateFilter[1])
   );
+  
 
   const handleClaimClick = (item) => {
     setSelectedItem(item);
@@ -113,14 +128,15 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredItems.map((item) => (
+          {filteredItemsSearch?.map((item) => (
             <Card key={item.id} className="mt-6">
               <CardBody>
                 <Typography variant="h5" color="blue-gray" className="mb-2">
                   {item.name}
                 </Typography>
-                <Typography>Location: {item.location}</Typography>
-                <Typography>Date Found: {item.dateFound}</Typography>
+                <Typography>Location: {item.found_at}</Typography>
+                <Typography>Date Found: {new Date(item.date_reported).toLocaleDateString()}</Typography>
+                <Typography>Time: {new Date(item.date_reported).toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit',})}</Typography>
               </CardBody>
               <CardFooter className="pt-0">
                 <Button onClick={() => handleClaimClick(item)}>
@@ -131,7 +147,7 @@ function Dashboard() {
           ))}
         </div>
 
-        {filteredItems.length === 0 && (
+        {filteredItemsSearch?.length === 0 && (
           <Typography className="text-center text-gray-500 mt-8">
             No items found. Try a different search term.
           </Typography>

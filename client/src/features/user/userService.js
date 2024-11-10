@@ -1,56 +1,40 @@
-import axios from "axios";
-
-const API_URL = "/api/user";
+import userApi from "../../utils/userAxios";
 
 // get user infor
-const getUserInfor = async (token) => {
-  const response = await axios.get(API_URL + "/user_infor", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
+const getUserInfor = async () => {
+  const response = await userApi.get("/user_infor")
   return response.data;
 };
 
 // get all user infor (admin)
-const getAllUsersInfor = async (token, params) => {
-  const response = await axios.get(API_URL + "/all_infor", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
+const getAllUsersInfor = async () => {
+  const response = await userApi.get("/all_infor");
 
   return response.data;
 };
 
 // update user infor
-const updateUser = async (data, token) => {
-  const response = await axios.patch(API_URL + "/update_user", data, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+const updateUser = async (data) => {
+  const response = await userApi.patch("/update_user", data)
 
   return response.data;
 };
 
 // update user role
-const updateUserRole = async (data, token) => {
-  const response = await axios.patch(
+const updateUserRole = async (data) => {
+  const response = await userApi.patch(
     API_URL + `/update_role/${data._id}`,
-    data,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+    data)
+  ;
 
   return response.data;
 };
 
 // update user status
-const updateUserStatus = async (data, token) => {
-  const response = await axios.patch(
+const updateUserStatus = async (data) => {
+  const response = await userApi.patch(
     API_URL + `/update_user_status/${data._id}`,
-    data,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+    data
   );
 
   return response.data;
