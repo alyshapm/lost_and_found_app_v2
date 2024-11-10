@@ -10,7 +10,7 @@ const refreshApi = axios.create({
 const TokenService = {
   async accessToken(){
     try {
-        const response = await refreshApi.get('/refresh_token')
+        const response = await refreshApi.post('/refresh_token')
 
         return response.data.access_token
         
@@ -18,6 +18,7 @@ const TokenService = {
       console.error("Error Refreshing Token", error);
       throw error;
     }
+      
   },
 
 

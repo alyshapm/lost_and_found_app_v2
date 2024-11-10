@@ -10,17 +10,19 @@ const userApi = axios.create({
 
 // Set up the interceptor immediately
 userApi.interceptors.request.use(
-  async (config) => {
-    // Fetch the token asynchronously
-    const token = await TokenService.accessToken();
-    
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+    async (config) => {
+      // Check if refresh token exists before trying to refresh
+      const user = localStorage.getItem('user');
+      if (user) {
+        const token = await TokenService.accessToken();
+        if (token) {
+          config.headers["Authorization"] = `Bearer ${token}`;
+        }
+      }
+      
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
 export default userApi;
