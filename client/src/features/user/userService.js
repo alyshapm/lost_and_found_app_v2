@@ -2,7 +2,7 @@ import userApi from "../../utils/userAxios";
 
 // get user infor
 const getUserInfor = async () => {
-  const response = await userApi.get("/user_infor")
+  const response = await userApi.get("/user_infor");
   return response.data;
 };
 
@@ -15,7 +15,7 @@ const getAllUsersInfor = async () => {
 
 // update user infor
 const updateUser = async (data) => {
-  const response = await userApi.patch("/update_user", data)
+  const response = await userApi.patch("/update_user", data);
 
   return response.data;
 };
@@ -24,9 +24,8 @@ const updateUser = async (data) => {
 const updateUserRole = async (data) => {
   const response = await userApi.patch(
     API_URL + `/update_role/${data._id}`,
-    data)
-  ;
-
+    data
+  );
   return response.data;
 };
 

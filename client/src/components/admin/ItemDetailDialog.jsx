@@ -6,9 +6,10 @@ import {
   DialogHeader,
   Button,
   Typography,
+  Avatar,
 } from "@material-tailwind/react";
 
-const ItemDetailDialog = ({ isOpen, item, onClose }) => {
+const ItemDetailDialog = ({ isOpen, item, founder, onClose }) => {
   if (!item) return null;
 
   return (
@@ -23,7 +24,51 @@ const ItemDetailDialog = ({ isOpen, item, onClose }) => {
         <Typography variant="h6">{item.name}</Typography>
         <Typography variant="paragraph">Category: {item.category}</Typography>
         <Typography variant="paragraph">Campus: {item.campus}</Typography>
-        <Typography variant="paragraph">Found At: {item.foundAt}</Typography>
+        {founder && (
+          <div className="mt-6">
+            <Typography variant="h6" className="mb-2">
+              Found by:
+            </Typography>
+            <div className="flex items-center gap-4">
+              <Avatar
+                src={founder.avatar || "/default-avatar.png"}
+                alt={founder.name}
+                size="lg"
+                className="border border-blue-500"
+              />
+              <div>
+                <Typography variant="h6" className="font-semibold">
+                  {founder.name}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Role:{" "}
+                  {founder.role === 5
+                    ? "User"
+                    : founder.role === 4
+                    ? "Staff"
+                    : "Admin"}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Program: {founder.program}
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Status: {founder.status}
+                </Typography>
+                <Button
+                  size="sm"
+                  variant="text"
+                  color="blue"
+                  className="mt-2"
+                  onClick={() =>
+                    (window.location.href = `mailto:${founder.email}`)
+                  }
+                >
+                  Contact Founder
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogBody>
       <DialogFooter>
         <Button variant="text" color="red" onClick={onClose}>

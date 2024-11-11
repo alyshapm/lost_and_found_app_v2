@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchItems } from "../../features/item/itemSlice";
+import { getAllUsersInfor } from "../../features/user/userSlice";
+
 import {
   Typography,
   Button,
@@ -6,6 +10,7 @@ import {
   IconButton,
   Chip,
 } from "@material-tailwind/react";
+
 import BaseTable from "../../components/admin/BaseTable";
 import ItemDetailDialog from "../../components/admin/ItemDetailDialog";
 import AddItemDialog from "../../components/admin/AddItemDialog";
@@ -13,9 +18,15 @@ import EditItemDialog from "../../components/admin/EditItemDialog";
 import ConfirmationDialog from "../../components/common/ConfirmationDialog";
 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import items from "../../data/items";
+
+import { convertFileToBase64 } from "../../utils/convertToBase64";
 
 function FoundItems() {
+  const dispatch = useDispatch();
+  const { items, isLoading } = useSelector((state) => state.items);
+  const { allUsersInfor } = useSelector((state) => state.user);
+
+  const [founder, setFounder] = useState(null);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
@@ -23,8 +34,24 @@ function FoundItems() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
+  useEffect(() => {
+    dispatch(fetchItems());
+    dispatch(getAllUsersInfor());
+  }, [dispatch]);
+
   const handleItemClick = (item) => {
+    console.log("ALL: ", allUsersInfor);
+    const founderInfo = allUsersInfor.users.find(
+      (user) => user._id === item.founded_by
+    );
+
+    console.log("Selected item:", item);
+    console.log("Founder info:", founderInfo);
+
+    console.log("IMAGE: " + item.item_img);
+
     setSelectedItem(item);
+    setFounder(founderInfo);
     setIsItemDialogOpen(true);
   };
 
@@ -70,7 +97,6 @@ function FoundItems() {
     },
     { header: "Category", field: "category" },
     { header: "Campus", field: "campus" },
-    { header: "Found At", field: "foundAt" },
     {
       header: "Status",
       field: "status",
@@ -132,7 +158,7 @@ function FoundItems() {
       <Card>
         <BaseTable
           columns={columns}
-          data={items}
+          data={Array.isArray(items.items) ? items.items : []}
           onRowClick={handleItemClick}
           actions={actions}
         />
@@ -141,6 +167,7 @@ function FoundItems() {
       <ItemDetailDialog
         isOpen={isItemDialogOpen}
         item={selectedItem}
+        founder={founder}
         onClose={() => setIsItemDialogOpen(false)}
       />
 
