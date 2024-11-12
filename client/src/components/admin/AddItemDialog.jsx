@@ -97,8 +97,8 @@ const AddItemDialog = ({ isOpen, onClose }) => {
 
   const handleEmailSelect = (user) => {
     setFormData({ ...formData, founded_by: user._id }); // Set user ID
-    setSearchEmail(user.personal_info.email); // Display selected email
-    setFilteredUsers([]); // Hide dropdown after selection
+    setSearchEmail(user.personal_info.email);
+    setFilteredUsers([]);
     setShowCreateAccount(false);
   };
 
@@ -109,7 +109,7 @@ const AddItemDialog = ({ isOpen, onClose }) => {
 
   const handleFileChange = async (file) => {
     const base64Image = await convertFileToBase64(file);
-    setFormData({ ...formData, image: file, imagePreview: base64Image });
+    setFormData({ ...formData, item_img: base64Image }); // Set base64 image to item_img
   };
 
   const handleAddItem = () => {
@@ -118,10 +118,10 @@ const AddItemDialog = ({ isOpen, onClose }) => {
       category: formData.category,
       description: formData.description,
       campus: formData.campus,
-      foundAt: formData.foundAt,
-      storingLocation: formData.storingLocation,
-      founderEmail: formData.founderEmail,
-      image: formData.imagePreview, // Assuming the backend accepts base64 strings
+      found_at: formData.found_at,
+      storing_location: formData.storing_location,
+      founded_by: formData.founded_by,
+      item_img: formData.item_img,
     };
 
     // Dispatch addItem with the itemData
@@ -140,17 +140,29 @@ const AddItemDialog = ({ isOpen, onClose }) => {
             name="name"
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
-          <Select
-            label="Category"
-            name="category"
-            onChange={(e) =>
-              setFormData({ ...formData, category: e.target.value })
-            }
-          >
-            <Option value="Electronics">Electronics</Option>
-            <Option value="Clothing">Clothing</Option>
-            <Option value="Books">Books</Option>
-            <Option value="Other">Other</Option>
+          <Select label="Category" name="category">
+            <Option
+              onClick={() =>
+                setFormData({ ...formData, category: "Electronics" })
+              }
+            >
+              Electronics
+            </Option>
+            <Option
+              onClick={() => setFormData({ ...formData, category: "Clothing" })}
+            >
+              Clothing
+            </Option>
+            <Option
+              onClick={() => setFormData({ ...formData, category: "Books" })}
+            >
+              Books
+            </Option>
+            <Option
+              onClick={() => setFormData({ ...formData, category: "Other" })}
+            >
+              Other
+            </Option>
           </Select>
           <Textarea
             label="Description"
@@ -159,16 +171,17 @@ const AddItemDialog = ({ isOpen, onClose }) => {
               setFormData({ ...formData, item_desc: e.target.value })
             }
           />
-          <Select
-            label="Campus"
-            name="campus"
-            onChange={(e) =>
-              setFormData({ ...formData, campus: e.target.value })
-            }
-          >
-            <Option value="Main Campus">Main Campus</Option>
-            <Option value="North Campus">North Campus</Option>
-            <Option value="South Campus">South Campus</Option>
+          <Select label="Campus" name="campus">
+            <Option
+              onClick={() =>
+                setFormData({ ...formData, campus: "FX Sudirman" })
+              }
+            >
+              FX Sudirman
+            </Option>
+            <Option onClick={() => setFormData({ ...formData, campus: "JWC" })}>
+              JWC
+            </Option>
           </Select>
           <Input
             label="Found At"
@@ -225,13 +238,13 @@ const AddItemDialog = ({ isOpen, onClose }) => {
             </Typography>
             <ImageUpload onFileChange={handleFileChange} />
           </div>
-          {formData.imagePreview && (
+          {formData.item_img && (
             <div className="mt-2">
               <Typography variant="small" color="blue-gray">
                 Image Preview:
               </Typography>
               <img
-                src={formData.imagePreview}
+                src={formData.item_img}
                 alt="Selected Item"
                 className="w-20 h-20 object-cover mt-2 rounded-lg"
               />
@@ -246,7 +259,7 @@ const AddItemDialog = ({ isOpen, onClose }) => {
         <Button
           variant="gradient"
           color="green"
-          onClick={handleAddItem} // Call handleAddItem on click
+          onClick={console.log("Item Data to be sent:", formData)} // Call handleAddItem on click
         >
           Add Item
         </Button>
