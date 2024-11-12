@@ -23,6 +23,16 @@ const ItemService = {
     }
   },
 
+  async addItem(newItem) {
+    try {
+      const response = await axiosInstance.post("/items/new", newItem);
+      return response.data;
+    } catch (error) {
+      console.error("Error adding new item", error);
+      throw error;
+    }
+  },
+
   // Add other item-related API calls here
 };
 

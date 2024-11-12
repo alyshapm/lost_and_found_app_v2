@@ -1,44 +1,73 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import itemService from "./itemService"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import itemService from "./itemService";
 
 // Define initial state for the slice
 const initialState = {
-  items: [],  
-  filteredItems: [],  // Filtered items for UI
+  items: [],
+  filteredItems: [], // Filtered items for UI
   isLoading: false,
   error: null,
 };
 
 // Thunk to fetch items (assuming you use async API calls)
-export const fetchItems = createAsyncThunk('items/fetchItems', async (thunkAPI) => {
-  try {
-      return await itemService.getItems()
-  } catch (error) {
-      const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
-
-      return thunkAPI.rejectWithValue(message)
-  }
-});
-
-
-export const claimItem = createAsyncThunk(
-  'items/claimItem', 
-  async ({ itemId, claimPayload }, thunkAPI) => {
+export const fetchItems = createAsyncThunk(
+  "items/fetchItems",
+  async (thunkAPI) => {
     try {
-      const response = await itemService.claimItem(itemId, claimPayload);
-      return response;  // Return the claimed item data
+      return await itemService.getItems();
     } catch (error) {
-      const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+
       return thunkAPI.rejectWithValue(message);
     }
   }
 );
 
+export const claimItem = createAsyncThunk(
+  "items/claimItem",
+  async ({ itemId, claimPayload }, thunkAPI) => {
+    try {
+      const response = await itemService.claimItem(itemId, claimPayload);
+      return response; // Return the claimed item data
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
+// Thunk to add a new item
+export const addItem = createAsyncThunk(
+  "items/addItem",
+  async (newItem, thunkAPI) => {
+    try {
+      const response = await itemService.addItem(newItem);
+      return response;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 // Create the slice
 const itemSlice = createSlice({
-  name: 'items',
+  name: "items",
   initialState,
   reducers: {
     // You can define additional reducers to manipulate state here
@@ -53,31 +82,46 @@ const itemSlice = createSlice({
       })
       .addCase(fetchItems.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log('Fetched items:', action.payload);
+        console.log("Fetched items:", action.payload);
         state.items = action.payload; // Save the items to state
         state.filteredItems = action.payload;
-        console.log(state.filteredItems)
-       // Set initial filtered items to all items
+        console.log(state.filteredItems);
+        // Set initial filtered items to all items
       })
       .addCase(fetchItems.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
-      }).addCase(claimItem.pending, (state) => {
+      })
+      .addCase(claimItem.pending, (state) => {
         state.isLoading = true;
-      }).addCase(claimItem.fulfilled, (state, action) => {
+      })
+      .addCase(claimItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log('Claimed item:', action.payload);
+        console.log("Claimed item:", action.payload);
         // Optionally, update the claimed item in the state
-        state.claimedItem = action.payload;  // You can store claimed item here
+        state.claimedItem = action.payload; // You can store claimed item here
         // Update the item in the items array as claimed if necessary
-        const updatedItems = state.items.map(item => 
+        const updatedItems = state.items.map((item) =>
           item.id === action.payload.id ? action.payload : item
         );
         state.items = updatedItems;
-      }).addCase(claimItem.rejected, (state, action) => {
+      })
+      .addCase(claimItem.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
-      });;
+      })
+
+      .addCase(addItem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addItem.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items.push(action.payload);
+      })
+      .addCase(addItem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      });
   },
 });
 

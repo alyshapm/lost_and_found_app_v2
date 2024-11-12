@@ -31,28 +31,28 @@ const ItemDetailDialog = ({ isOpen, item, founder, onClose }) => {
             </Typography>
             <div className="flex items-center gap-4">
               <Avatar
-                src={founder.avatar || "/default-avatar.png"}
-                alt={founder.name}
+                src={founder.personal_info.avatar || "/default-avatar.png"}
+                alt={founder.personal_info.name}
                 size="lg"
                 className="border border-blue-500"
               />
               <div>
                 <Typography variant="h6" className="font-semibold">
-                  {founder.name}
+                  {founder.personal_info.name}
                 </Typography>
                 <Typography className="text-sm text-gray-600">
                   Role:{" "}
-                  {founder.role === 5
+                  {founder.personal_info.role === 5
                     ? "User"
-                    : founder.role === 4
+                    : founder.personal_info.role === 4
                     ? "Staff"
                     : "Admin"}
                 </Typography>
                 <Typography className="text-sm text-gray-600">
-                  Program: {founder.program}
+                  Program: {founder.personal_info.program}
                 </Typography>
                 <Typography className="text-sm text-gray-600">
-                  Status: {founder.status}
+                  Status: {founder.personal_info.status}
                 </Typography>
                 <Button
                   size="sm"
@@ -60,7 +60,7 @@ const ItemDetailDialog = ({ isOpen, item, founder, onClose }) => {
                   color="blue"
                   className="mt-2"
                   onClick={() =>
-                    (window.location.href = `mailto:${founder.email}`)
+                    (window.location.href = `mailto:${founder.personal_info.email}`)
                   }
                 >
                   Contact Founder
