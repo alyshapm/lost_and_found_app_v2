@@ -10,6 +10,7 @@ import { getAllUsersInfor, getUserInfor } from "./features/user/userSlice";
 import { accessToken } from "./features/token/tokenSlice";
 import ProtectedUserRoutes from "./common/ProtectedUserRoutes";
 import Unauthorized from "./common/Unauthorized";
+import RoleSelection from "./pages/auth/RoleSelection";
 
 export default function App() {
 
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/dashboard/*" element={<ProtectedUserRoutes allowedRoles={[3,4,5]}><DashboardRoutes /></ProtectedUserRoutes>} />
         <Route path="/admin/*" element={<ProtectedUserRoutes allowedRoles={[3,4]}><AdminRoutes /></ProtectedUserRoutes>} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/select-role" element = {<RoleSelection/>}/>
       </Routes>
     </Router>
   );

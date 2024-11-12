@@ -49,9 +49,15 @@ export const Signin = () => {
         navigate("/admin"); // Redirect to admin page if role is 3 or 4
       } else if (userRole === 5) {
         navigate("/dashboard"); // Redirect to home page if role is 5
-      } else {
+      } else if (user.roleSelectionRequired) {
+        navigate("/select-role"); // Redirect to the role selection page
+      }
+       else {
         navigate("/unauthorized"); // Redirect to unauthorized page if role doesn't match
       }
+
+      // Check if role selection is required
+
     
 
     }
