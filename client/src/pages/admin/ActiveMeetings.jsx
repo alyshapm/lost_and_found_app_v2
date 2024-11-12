@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMeetings } from "../../features/meeting/meetingSlice";
+import { getAllUsersInfor } from "../../features/user/userSlice";
 import {
   Typography,
   Button,
@@ -8,16 +11,24 @@ import {
 } from "@material-tailwind/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import BaseTable from "../../components/admin/BaseTable";
-import meetings from "../../data/meetings";
 
 const ActiveMeetings = () => {
+  const dispatch = useDispatch();
+  const { meetings } = useSelector((state) => state.meetings);
+  const { allUsersInfor } = useSelector((state) => state.user);
   const [searchQuery, setSearchQuery] = useState("");
-  const [meetingData, setMeetingData] = useState(
-    meetings.filter(
-      (meeting) =>
-        meeting.status === "submitted" || meeting.status === "approved"
-    )
-  );
+  const [meetingData, setMeetingData] = Array.isArray(meetings.meetings)
+    ? meetings.meetings.filter(
+        (meeting) =>
+          meeting.status === "submitted" || meeting.status === "approved"
+      )
+    : [];
+  const [claimer, setClaimer] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchMeetings());
+    dispatch(getAllUsersInfor());
+  }, [dispatch]);
 
   const filteredData = meetingData.filter((meeting) => {
     const query = searchQuery.toLowerCase();

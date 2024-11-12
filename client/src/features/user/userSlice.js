@@ -162,7 +162,7 @@ export const userSlice = createSlice({
         state.isSuccess = false;
       })
       .addCase(getUserInfor.fulfilled, (state, action) => {
-        console.log("Fulfilled data:", action.payload);
+        // console.log("Fulfilled data:", action.payload);
         state.isLoading = false;
         state.userInfor = action.payload;
       })
@@ -180,7 +180,7 @@ export const userSlice = createSlice({
       .addCase(getAllUsersInfor.fulfilled, (state, action) => {
         state.isLoading = false;
         state.allUsersInfor = action.payload;
-        console.log("allUsersInfor updated:", action.payload);
+        // console.log("allUsersInfor updated:", action.payload);
       })
       .addCase(getAllUsersInfor.rejected, (state, action) => {
         state.isLoading = false;

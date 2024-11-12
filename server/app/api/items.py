@@ -69,7 +69,7 @@ async def claim_item(item_id: str, claim: ClaimItem):
     update_fields = {
         "status": "claimed",
         "claimed_by": claim.claimed_by,
-        "claim_date": str(datetime.now().isoformat)
+        "claim_date": str(datetime.now().isoformat())
     }
 
     # Call the CRUD function to update the item

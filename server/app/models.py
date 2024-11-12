@@ -71,7 +71,7 @@ class ItemsCollection(BaseModel):
 
 
 class ClaimItem(BaseModel):
-    claimed_by: int
+    claimed_by: PyObjectId
     
 
 class MeetingCompletion(BaseModel):
