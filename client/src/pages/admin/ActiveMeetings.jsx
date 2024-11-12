@@ -17,12 +17,7 @@ const ActiveMeetings = () => {
   const { meetings } = useSelector((state) => state.meetings);
   const { allUsersInfor } = useSelector((state) => state.user);
   const [searchQuery, setSearchQuery] = useState("");
-  const [meetingData, setMeetingData] = Array.isArray(meetings.meetings)
-    ? meetings.meetings.filter(
-        (meeting) =>
-          meeting.status === "submitted" || meeting.status === "approved"
-      )
-    : [];
+  const [meetingData, setMeetingData] = useState([]);
   const [claimer, setClaimer] = useState(null);
 
   useEffect(() => {
@@ -30,14 +25,23 @@ const ActiveMeetings = () => {
     dispatch(getAllUsersInfor());
   }, [dispatch]);
 
-  const filteredData = meetingData.filter((meeting) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      meeting.meeting_date.toLowerCase().includes(query) ||
-      meeting.location.toLowerCase().includes(query)
-    );
-  });
 
+  const filteredData = Array.isArray(meetings?.meetings)
+    ? meetings.meetings
+        .filter(
+          (meeting) =>
+            meeting.status === "submitted" || meeting.status === "approved"
+        )
+        .filter((meeting) => {
+          const query = searchQuery.toLowerCase();
+          return (
+            meeting.meeting_date.toLowerCase().includes(query) ||
+            meeting.location.toLowerCase().includes(query)
+          );
+        })
+    : [];
+
+  
   const handleApprove = (id) => {
     setMeetingData((prev) =>
       prev.map((meeting) =>
