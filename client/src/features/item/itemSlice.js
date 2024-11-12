@@ -65,6 +65,42 @@ export const addItem = createAsyncThunk(
   }
 );
 
+export const editItem = createAsyncThunk(
+  "items/editItem",
+  async ({ itemId, updatedItem }, thunkAPI) => {
+    try {
+      const response = await itemService.editItem(itemId, updatedItem);
+      return response;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const deleteItem = createAsyncThunk(
+  "items/deleteItem",
+  async (itemId, thunkAPI) => {
+    try {
+      const response = await itemService.deleteItem(itemId);
+      return { itemId, ...response };
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Create the slice
 const itemSlice = createSlice({
   name: "items",
@@ -82,10 +118,10 @@ const itemSlice = createSlice({
       })
       .addCase(fetchItems.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("Fetched items:", action.payload);
+        // console.log("Fetched items:", action.payload);
         state.items = action.payload; // Save the items to state
         state.filteredItems = action.payload;
-        console.log(state.filteredItems);
+        // console.log(state.filteredItems);
         // Set initial filtered items to all items
       })
       .addCase(fetchItems.rejected, (state, action) => {
@@ -97,10 +133,8 @@ const itemSlice = createSlice({
       })
       .addCase(claimItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("Claimed item:", action.payload);
-        // Optionally, update the claimed item in the state
-        state.claimedItem = action.payload; // You can store claimed item here
-        // Update the item in the items array as claimed if necessary
+        // console.log("Claimed item:", action.payload);
+        state.claimedItem = action.payload;
         const updatedItems = state.items.map((item) =>
           item.id === action.payload.id ? action.payload : item
         );
@@ -116,9 +150,54 @@ const itemSlice = createSlice({
       })
       .addCase(addItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items.push(action.payload);
+        // console.log("Current state.items:", state.items); // Debug log
+        // console.log("Action payload:", action.payload); // Debug log
+        if (Array.isArray(state.items)) {
+          state.items.push(action.payload);
+        } else {
+          state.items = [action.payload];
+        }
       })
       .addCase(addItem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(editItem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(editItem.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (Array.isArray(state.items)) {
+          state.items = state.items.map((item) =>
+            item._id === action.payload._id ? action.payload : item
+          );
+        } else {
+          state.items = [action.payload];
+        }
+        state.filteredItems = state.items;
+      })
+      .addCase(editItem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(deleteItem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteItem.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (Array.isArray(state.items)) {
+          state.items = state.items.filter(
+            (item) => item._id !== action.payload.itemId
+          );
+        } else {
+          state.items = [action.payload];
+        }
+
+        state.filteredItems = state.items;
+      })
+      .addCase(deleteItem.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       });

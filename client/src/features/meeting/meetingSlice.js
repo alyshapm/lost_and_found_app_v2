@@ -1,22 +1,23 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import meetingService from './meetingService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import meetingService from "./meetingService";
 
-// Initial state
 const initialState = {
-  meetings: [],         // Array to store all meetings
-  isLoading: false,     // Loading indicator
-  error: null,          // Error state
+  meetings: [],
+  isLoading: false,
+  error: null,
 };
 
 // Async thunk to fetch all meetings
 export const fetchMeetings = createAsyncThunk(
-  'meetings/fetchMeetings',
+  "meetings/fetchMeetings",
   async (_, thunkAPI) => {
     try {
       return await meetingService.getMeetings();
     } catch (error) {
       const message =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
@@ -26,13 +27,15 @@ export const fetchMeetings = createAsyncThunk(
 
 // Async thunk to request a new meeting
 export const requestMeeting = createAsyncThunk(
-  'meetings/requestMeeting',
+  "meetings/requestMeeting",
   async (meetingData, thunkAPI) => {
     try {
       return await meetingService.requestMeeting(meetingData);
     } catch (error) {
       const message =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
@@ -42,13 +45,15 @@ export const requestMeeting = createAsyncThunk(
 
 // Async thunk to approve a meeting
 export const approveMeeting = createAsyncThunk(
-  'meetings/approveMeeting',
+  "meetings/approveMeeting",
   async (meetingId, thunkAPI) => {
     try {
       return await meetingService.approveMeeting(meetingId);
     } catch (error) {
       const message =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
@@ -58,13 +63,15 @@ export const approveMeeting = createAsyncThunk(
 
 // Async thunk to reject a meeting
 export const rejectMeeting = createAsyncThunk(
-  'meetings/rejectMeeting',
+  "meetings/rejectMeeting",
   async (meetingId, thunkAPI) => {
     try {
       return await meetingService.rejectMeeting(meetingId);
     } catch (error) {
       const message =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
@@ -74,7 +81,7 @@ export const rejectMeeting = createAsyncThunk(
 
 // Create the slice
 const meetingsSlice = createSlice({
-  name: 'meetings',
+  name: "meetings",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

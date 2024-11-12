@@ -17,7 +17,7 @@ const ItemDetailDialog = ({ isOpen, item, founder, onClose }) => {
       <DialogHeader>Item Details</DialogHeader>
       <DialogBody divider>
         <img
-          src={item.image}
+          src={item.item_img}
           alt={item.name}
           className="w-full h-64 object-cover mb-4"
         />

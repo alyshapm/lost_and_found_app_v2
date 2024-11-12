@@ -33,6 +33,29 @@ const ItemService = {
     }
   },
 
+  async editItem(itemId, updatedItem) {
+    try {
+      const response = await axiosInstance.put(
+        `/items/update/${itemId}`,
+        updatedItem
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating item", error);
+      throw error;
+    }
+  },
+
+  async deleteItem(itemId) {
+    try {
+      const response = await axiosInstance.delete(`/items/delete/${itemId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting item", error);
+      throw error;
+    }
+  },
+
   // Add other item-related API calls here
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchItems } from "../../features/item/itemSlice";
+import { fetchItems, deleteItem } from "../../features/item/itemSlice";
 import { getAllUsersInfor } from "../../features/user/userSlice";
 
 import {
@@ -18,8 +18,6 @@ import EditItemDialog from "../../components/admin/EditItemDialog";
 import ConfirmationDialog from "../../components/common/ConfirmationDialog";
 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-
-import { convertFileToBase64 } from "../../utils/convertToBase64";
 
 function FoundItems() {
   const dispatch = useDispatch();
@@ -40,16 +38,9 @@ function FoundItems() {
   }, [dispatch]);
 
   const handleItemClick = (item) => {
-    console.log("ALL: ", allUsersInfor);
     const founderInfo = allUsersInfor.users.find(
       (user) => user._id === item.founded_by
     );
-
-    console.log("Selected item:", item);
-    console.log("Founder info:", founderInfo);
-
-    console.log("IMAGE: " + item.item_img);
-
     setSelectedItem(item);
     setFounder(founderInfo);
     setIsItemDialogOpen(true);
@@ -64,18 +55,35 @@ function FoundItems() {
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = (updatedItem) => {
-    // Logic to save the edited item, e.g., sending it to the backend or updating state
-  };
-
   const handleDeleteClick = (item) => {
     setItemToDelete(item);
     setIsConfirmDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    // Logic to delete the item, e.g., calling API or updating state
-    console.log("Deleting item:", itemToDelete);
+    if (itemToDelete) {
+      dispatch(deleteItem(itemToDelete._id))
+        .then((response) => {
+          if (!response.error) {
+            console.log("Item deleted successfully");
+            refreshItems;
+          } else {
+            console.error("Error deleting item:", response.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting item:", error);
+        })
+        .finally(() => {
+          setIsConfirmDialogOpen(false);
+          refreshItems;
+          setItemToDelete(null);
+        });
+    }
+  };
+
+  const refreshItems = () => {
+    dispatch(fetchItems()); // Refetch items after adding a new one
   };
 
   const columns = [
@@ -85,7 +93,7 @@ function FoundItems() {
       render: (name, item) => (
         <div className="flex items-center gap-3">
           <img
-            src={item.image}
+            src={item.item_img}
             alt={name}
             className="h-12 w-12 rounded-full object-cover"
           />
@@ -174,13 +182,14 @@ function FoundItems() {
       <AddItemDialog
         isOpen={isAddItemDialogOpen}
         onClose={() => setIsAddItemDialogOpen(false)}
+        refreshItems={refreshItems}
       />
 
       <EditItemDialog
         isOpen={isEditDialogOpen}
         item={selectedItem}
         onClose={() => setIsEditDialogOpen(false)}
-        onSave={handleSaveEdit}
+        refreshItems={refreshItems}
       />
 
       <ConfirmationDialog
