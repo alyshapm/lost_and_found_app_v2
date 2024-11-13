@@ -66,7 +66,7 @@ function FoundItems() {
         .then((response) => {
           if (!response.error) {
             console.log("Item deleted successfully");
-            refreshItems;
+            refreshItems();
           } else {
             console.error("Error deleting item:", response.error);
           }
@@ -76,7 +76,7 @@ function FoundItems() {
         })
         .finally(() => {
           setIsConfirmDialogOpen(false);
-          refreshItems;
+          refreshItems();
           setItemToDelete(null);
         });
     }
@@ -129,25 +129,25 @@ function FoundItems() {
   ];
 
   const actions = [
-    ({ item }) => (
+    ({ row }) => (
       <IconButton
         variant="text"
         color="blue"
         onClick={(e) => {
           e.stopPropagation();
-          handleEditClick(item);
+          handleEditClick(row);
         }}
       >
         <PencilIcon className="h-4 w-4" />
       </IconButton>
     ),
-    ({ item }) => (
+    ({ row }) => (
       <IconButton
         variant="text"
         color="red"
         onClick={(e) => {
           e.stopPropagation();
-          handleDeleteClick(item);
+          handleDeleteClick(row);
         }}
       >
         <TrashIcon className="h-4 w-4" />

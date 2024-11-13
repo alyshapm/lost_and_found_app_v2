@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItems } from "../../features/item/itemSlice";
-import { getUserInfor } from "../../features/user/userSlice";
+// import { getUserInfor } from "../../features/user/userSlice";
 import {
   Typography,
   Button,
@@ -88,7 +88,7 @@ function Dashboard() {
   const filteredItemsSearch = filteredItems.items?.filter(
     (item) =>
       // Safely check for name and location
-      // item.founded_by === userInfor.data._id &&
+      item.founded_by !== userInfor._id &&
       (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
        item.location?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedLocations.length === 0 || selectedLocations.includes(item.location)) &&

@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { convertFileToBase64 } from "../../utils/convertToBase64";
 
 import { addItem } from "../../features/item/itemSlice";
-import { getAllUsersInfor, getUserInfor } from "../../features/user/userSlice";
+import { getAllUsersInfor } from "../../features/user/userSlice";
 
 const ImageUpload = ({ onFileChange }) => {
   const onDrop = useCallback(
@@ -57,12 +57,12 @@ const ImageUpload = ({ onFileChange }) => {
 
 const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
   const dispatch = useDispatch();
-  const { allUsersInfor } = useSelector((state) => state.user);
-  const { userInfor } = useSelector((state) => state.user);
+  const { allUsersInfor, userInfor } = useSelector((state) => state.user);
+  
 
   useEffect(() => {
     dispatch(getAllUsersInfor());
-    dispatch(getUserInfor());
+    // dispatch(getUserInfor());
   }, [dispatch]);
 
   const [formData, setFormData] = useState({
@@ -115,6 +115,7 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
   };
 
   const handleAddItem = () => {
+    console.log(filteredUsers)
     const itemData = {
       name: formData.name,
       category: formData.category,
