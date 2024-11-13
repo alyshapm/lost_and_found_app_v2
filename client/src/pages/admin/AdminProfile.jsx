@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardBody,
@@ -10,43 +10,60 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { UserCircleIcon, CameraIcon } from "@heroicons/react/24/solid";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserInfor } from "../../features/user/userSlice";
+import { convertFileToBase64 } from "../../utils/convertToBase64";
 
 const AdminProfile = () => {
+  const dispatch = useDispatch();
+  const { userInfor } = useSelector((state) => state.user);
+  const [hasChanges, setHasChanges] = useState(false);
+
   const [profileData, setProfileData] = useState({
-    binusianId: "2440000000",
-    name: "John Doe",
-    email: "john.doe@binus.edu",
+    binusian_id: "",
+    name: "",
+    email: "",
     password: "",
-    confirmPassword: "",
-    phoneNumber: "+62 812-3456-7890",
-    program: "Computer Science",
-    address: "123 Main St, Jakarta",
-    role: "Admin",
+    confirm_password: "",
+    phone: "",
+    program: "",
+    address: "",
+    role: "",
+    avatar: null,
   });
 
-  const [profileImage, setProfileImage] = useState(null);
+  useEffect(() => {
+    dispatch(getUserInfor());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (userInfor) {
+      setProfileData((prevData) => ({
+        ...prevData,
+        ...userInfor.personal_info,
+      }));
+    }
+  }, [userInfor]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData({ ...profileData, [name]: value });
+    setProfileData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setHasChanges(true);
   };
 
-  const handleImageChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    const base64Image = await convertFileToBase64(file);
+    setProfileData((prevData) => ({ ...prevData, avatar: base64Image }));
+    setHasChanges(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Implement profile update logic here
-    console.log("Profile data submitted:", profileData);
-    console.log("Profile image:", profileImage);
+  const handleSaveChanges = () => {
+    console.log("Saving profile data:", profileData);
+    // Implement save logic
   };
 
   return (
@@ -56,13 +73,13 @@ const AdminProfile = () => {
       </Typography>
       <Card className="w-full max-w-4xl mx-auto">
         <CardBody className="flex flex-col gap-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <form onSubmit={handleSaveChanges} className="flex flex-col gap-6">
             <div className="flex flex-col md:flex-row gap-6 items-center">
               <div className="relative">
-                {profileImage ? (
+                {profileData.avatar ? (
                   <img
-                    src={profileImage}
-                    alt="Profile"
+                    src={profileData.avatar}
+                    alt="Profile Picture"
                     className="w-32 h-32 rounded-full object-cover"
                   />
                 ) : (
@@ -78,15 +95,15 @@ const AdminProfile = () => {
                   type="file"
                   id="profile-image"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  onChange={handleFileChange}
                   className="hidden"
                 />
               </div>
               <div className="flex-1 w-full">
                 <Input
                   label="Binusian ID"
-                  name="binusianId"
-                  value={profileData.binusianId}
+                  name="binusian_id"
+                  value={profileData.binusian_id}
                   onChange={handleInputChange}
                   disabled
                 />
@@ -115,15 +132,15 @@ const AdminProfile = () => {
               />
               <Input
                 label="Confirm New Password"
-                name="confirmPassword"
+                name="confirm_password"
                 type="password"
-                value={profileData.confirmPassword}
+                value={profileData.confirm_password}
                 onChange={handleInputChange}
               />
               <Input
                 label="Phone Number"
-                name="phoneNumber"
-                value={profileData.phoneNumber}
+                name="phone"
+                value={profileData.phone}
                 onChange={handleInputChange}
               />
               <Select
@@ -164,7 +181,13 @@ const AdminProfile = () => {
               value={profileData.address}
               onChange={handleInputChange}
             />
-            <Button type="submit" className="mt-6">
+            <Button
+              variant="gradient"
+              color="green"
+              onClick={handleSaveChanges}
+              disabled={!hasChanges}
+              className="mt-6"
+            >
               Save Changes
             </Button>
           </form>

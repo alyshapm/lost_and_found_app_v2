@@ -5,9 +5,9 @@ const BaseTable = ({ columns, data, onRowClick, actions }) => (
   <table className="w-full min-w-max table-auto text-left">
     <thead>
       <tr>
-        {columns.map((col) => (
+        {columns.map((col, colIndex) => (
           <th
-            key={col.field}
+            key={`col-${colIndex}`} // Use colIndex with a unique prefix
             className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
           >
             <Typography
@@ -33,21 +33,24 @@ const BaseTable = ({ columns, data, onRowClick, actions }) => (
       </tr>
     </thead>
     <tbody>
-      {data.map((item) => (
+      {data.map((row, rowIndex) => (
         <tr
-          key={item.id}
+          key={row._id || `row-${rowIndex}`}
           className="even:bg-blue-gray-50/50 cursor-pointer"
-          onClick={() => onRowClick && onRowClick(item)}
+          onClick={() => onRowClick && onRowClick(row)}
         >
-          {columns.map((col) => (
-            <td key={col.field} className="p-4">
-              {col.render ? col.render(item[col.field], item) : item[col.field]}
+          {columns.map((col, colIndex) => (
+            <td key={`cell-${rowIndex}-${colIndex}`} className="p-4">
+              {col.render ? col.render(row[col.field], row) : row[col.field]}
             </td>
           ))}
           {actions && (
             <td className="p-4 flex space-x-2">
-              {actions.map((ActionComponent, index) => (
-                <ActionComponent key={index} item={item} />
+              {actions.map((ActionComponent, actionIndex) => (
+                <ActionComponent
+                  key={`action-${rowIndex}-${actionIndex}`}
+                  row={row}
+                />
               ))}
             </td>
           )}

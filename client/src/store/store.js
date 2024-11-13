@@ -4,6 +4,7 @@ import userReducer from "../features/user/userSlice";
 import authReducer from "../features/auth/authSlice";
 import tokenReducer from "../features/token/tokenSlice";
 import meetingReducer from "../features/meeting/meetingSlice";
+import notificationReducer from "../features/notifications/notificationsSlice";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     auth: authReducer,
     token: tokenReducer,
     meetings: meetingReducer,
+    notifications: notificationReducer,
   },
 });
 

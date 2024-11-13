@@ -1,9 +1,19 @@
-import React from "react";
-import { Typography, Card, Chip } from "@material-tailwind/react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Typography, Card, Chip, IconButton } from "@material-tailwind/react";
+import { fetchAllNotifications } from "../../features/notifications/notificationsSlice";
 import BaseTable from "../../components/admin/BaseTable";
-import notifications from "../../data/notifications";
 
 const BackLog = () => {
+  const dispatch = useDispatch();
+  const { notifications, isLoading } = useSelector(
+    (state) => state.notifications
+  );
+
+  useEffect(() => {
+    dispatch(fetchAllNotifications());
+  }, [dispatch]);
+
   const notificationTypeColors = {
     claim_initiated: "blue",
     claim_under_review: "amber",
@@ -63,12 +73,18 @@ const BackLog = () => {
   ];
 
   return (
-    <div className="">
+    <div>
       <Typography variant="h4" color="blue-gray" className="mb-4">
         Notifications Back Log
       </Typography>
-      <Card className="">
-        <BaseTable columns={columns} data={notifications} />
+      <Card>
+        {isLoading ? (
+          <Typography variant="small" color="gray" className="text-center">
+            Loading...
+          </Typography>
+        ) : (
+          <BaseTable columns={columns} data={notifications} />
+        )}
       </Card>
     </div>
   );
