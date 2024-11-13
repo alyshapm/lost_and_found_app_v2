@@ -43,7 +43,6 @@ export const requestMeeting = createAsyncThunk(
   }
 );
 
-// Async thunk to approve a meeting
 export const approveMeeting = createAsyncThunk(
   "meetings/approveMeeting",
   async (meetingId, thunkAPI) => {
@@ -61,7 +60,23 @@ export const approveMeeting = createAsyncThunk(
   }
 );
 
-// Async thunk to reject a meeting
+export const completeMeeting = createAsyncThunk(
+  "meetings/completeMeeting",
+  async (meetingId, thunkAPI) => {
+    try {
+      return await meetingService.completeMeeting(meetingId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const rejectMeeting = createAsyncThunk(
   "meetings/rejectMeeting",
   async (meetingId, thunkAPI) => {
@@ -109,16 +124,25 @@ const meetingsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(approveMeeting.fulfilled, (state, action) => {
-        const updatedMeeting = action.payload;
-        state.meetings = state.meetings.map((meeting) =>
-          meeting._id === updatedMeeting._id ? updatedMeeting : meeting
-        );
+        if (Array.isArray(state.meetings)) {
+          state.meetings = state.meetings.map((meeting) =>
+            meeting._id === action.payload._id ? action.payload : meeting
+          );
+        }
+      })
+      .addCase(completeMeeting.fulfilled, (state, action) => {
+        if (Array.isArray(state.meetings)) {
+          state.meetings = state.meetings.map((meeting) =>
+            meeting._id === action.payload._id ? action.payload : meeting
+          );
+        }
       })
       .addCase(rejectMeeting.fulfilled, (state, action) => {
-        const updatedMeeting = action.payload;
-        state.meetings = state.meetings.map((meeting) =>
-          meeting._id === updatedMeeting._id ? updatedMeeting : meeting
-        );
+        if (Array.isArray(state.meetings)) {
+          state.meetings = state.meetings.map((meeting) =>
+            meeting._id === action.payload._id ? action.payload : meeting
+          );
+        }
       });
   },
 });

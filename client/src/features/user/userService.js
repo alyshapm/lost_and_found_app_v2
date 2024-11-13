@@ -22,19 +22,14 @@ const updateUser = async (data) => {
 
 // update user role
 const updateUserRole = async (data) => {
-  const response = await userApi.patch(
-    API_URL + `/update_role/${data._id}`,
-    data
-  );
+  const payload = { role: data.role };
+  const response = await userApi.patch(`/update_role/${data._id}`, payload);
   return response.data;
 };
 
 // update user status
 const updateUserStatus = async (data) => {
-  const response = await userApi.patch(
-    API_URL + `/update_user_status/${data._id}`,
-    data
-  );
+  const response = await userApi.patch(`/update_user_status/${data._id}`, data);
 
   return response.data;
 };

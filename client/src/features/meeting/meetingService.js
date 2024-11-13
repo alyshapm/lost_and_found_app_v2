@@ -21,6 +21,38 @@ const MeetingService = {
       throw error;
     }
   },
+
+  async approveMeeting(meetingId) {
+    try {
+      const response = await axiosInstance.put(`/meeting/approve/${meetingId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error approving meeting", error);
+      throw error;
+    }
+  },
+
+  async completeMeeting(meetingId) {
+    try {
+      const response = await axiosInstance.put(
+        `/meeting/complete/${meetingId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error completing meeting", error);
+      throw error;
+    }
+  },
+
+  async rejectMeeting(meetingId) {
+    try {
+      const response = await axiosInstance.put(`/meeting/reject/${meetingId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error rejecting meeting", error);
+      throw error;
+    }
+  },
 };
 
 export default MeetingService;

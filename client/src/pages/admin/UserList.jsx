@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Typography,
   IconButton,
@@ -9,46 +10,42 @@ import {
 import BaseTable from "../../components/admin/BaseTable";
 import ConfirmationDialog from "../../components/common/ConfirmationDialog";
 import EditUserDialog from "../../components/admin/EditUserDialog";
+import { getAllUsersInfor } from "../../features/user/userSlice";
 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import users from "../../data/users";
 
 function UserList() {
-  const [personalInfoData, setPersonalInfoData] = useState([]);
+  const dispatch = useDispatch();
+  const { allUsersInfor } = useSelector((state) => state.user);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+
+  useEffect(() => {
+    // Dispatch action to fetch all users from the backend
+    dispatch(getAllUsersInfor());
+  }, [dispatch]);
+
+  const personalInfoData = Array.isArray(allUsersInfor?.users)
+    ? allUsersInfor.users.map((user) => ({
+        ...user.personal_info,
+        joinedAt: user.joinedAt,
+        _id: user._id,
+      }))
+    : [];
 
   const handleEditClick = (user) => {
     setSelectedUser(user);
     setIsEditDialogOpen(true);
   };
 
+  const refreshUserList = () => {
+    dispatch(getAllUsersInfor());
+  };
+
   const handleSaveUser = (updatedUser) => {
-    // Logic to update the user data in the backend or state
-    console.log("Updated User:", updatedUser);
+    refreshUserList(); // Trigger refresh after saving
   };
-
-  const handleDeleteClick = (user) => {
-    setUserToDelete(user);
-    setIsConfirmDialogOpen(true);
-  };
-
-  const confirmDelete = () => {
-    // Logic to delete the user, e.g., calling API or updating state
-    console.log("Deleting user:", userToDelete);
-  };
-
-  useEffect(() => {
-    // Extract and flatten data for each user
-    const extractedData = users.map((user) => ({
-      ...user.personal_info, // Flatten all fields in `personal_info`
-      joinedAt: user.joinedAt?.$date, // Flatten `joinedAt` date
-      _id: user._id?.$oid, // Flatten `_id`
-    }));
-    setPersonalInfoData(extractedData);
-  }, []);
 
   const columns = [
     {
@@ -89,15 +86,31 @@ function UserList() {
     {
       header: "Role",
       field: "role",
-      render: (role) => (
-        <Chip
-          size="sm"
-          variant="ghost"
-          color={role === 1 ? "green" : role === 2 ? "blue" : "amber"}
-          value={role === 1 ? "ADMIN" : role === 2 ? "USER" : "STAFF"}
-          className="uppercase font-bold"
-        />
-      ),
+      render: (role) => {
+        const roleLabels = {
+          5: { label: "GENERAL USER", color: "green" },
+          4: { label: "STAFF", color: "amber" },
+          3: { label: "ROOT ADMIN", color: "blue" },
+        };
+
+        // Convert single role integer to an array if necessary
+        const rolesArray = Array.isArray(role) ? role : [role];
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {rolesArray.map((roleId) => (
+              <Chip
+                key={roleId}
+                size="sm"
+                variant="ghost"
+                color={roleLabels[roleId]?.color || "gray"}
+                value={roleLabels[roleId]?.label || "UNKNOWN"}
+                className="uppercase font-bold"
+              />
+            ))}
+          </div>
+        );
+      },
     },
     {
       header: "Status",
@@ -133,13 +146,6 @@ function UserList() {
           >
             <PencilIcon className="h-4 w-4" />
           </IconButton>
-          <IconButton
-            variant="text"
-            color="red"
-            onClick={() => handleDeleteClick(user)}
-          >
-            <TrashIcon className="h-4 w-4" />
-          </IconButton>
         </div>
       ),
     },
@@ -159,13 +165,6 @@ function UserList() {
         onClose={() => setIsEditDialogOpen(false)}
         user={selectedUser}
         onSave={handleSaveUser}
-      />
-
-      <ConfirmationDialog
-        isOpen={isConfirmDialogOpen}
-        onClose={() => setIsConfirmDialogOpen(false)}
-        onConfirm={confirmDelete}
-        message={`Are you sure you want to delete "${userToDelete?.name}"?`}
       />
     </div>
   );

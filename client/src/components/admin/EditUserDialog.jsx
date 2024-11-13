@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   Dialog,
   DialogBody,
@@ -10,12 +11,16 @@ import {
   Option,
   Typography,
 } from "@material-tailwind/react";
+import {
+  updateUserRole,
+  updateUserStatus,
+  getAllUsersInfor,
+} from "../../features/user/userSlice"; // Import getAllUsersInfor to trigger refresh
 
 const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
+  const dispatch = useDispatch();
   const [roles, setRoles] = useState([]);
   const [status, setStatus] = useState(user?.status || "active");
-
-  // Store initial values to detect changes
   const [initialRoles, setInitialRoles] = useState([]);
   const [initialStatus, setInitialStatus] = useState(user?.status || "active");
 
@@ -37,17 +42,27 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
     );
   };
 
-  const handleSave = () => {
-    const updatedUser = {
-      ...user,
-      role: roles,
-      status,
-    };
-    onSave(updatedUser);
-    onClose();
+  const handleSave = async () => {
+    try {
+      if (JSON.stringify(roles) !== JSON.stringify(initialRoles)) {
+        console.log("Updating role with data:", { _id: user._id, role: roles }); // Log data being sent
+        dispatch(updateUserRole({ _id: user._id, role: roles }));
+      }
+      if (status !== initialStatus) {
+        console.log("Updating status with data:", { _id: user._id, status }); // Log data being sent
+        dispatch(updateUserStatus({ _id: user._id, status }));
+      }
+
+      if (onSave) {
+        onSave(); // Trigger refresh in UserList
+      }
+      onClose(); // Close the dialog
+    } catch (error) {
+      console.error("Error updating roles or status:", error);
+      // Handle any error feedback to the user here if necessary
+    }
   };
 
-  // Check if there are any changes
   const hasChanges =
     status !== initialStatus ||
     JSON.stringify(roles) !== JSON.stringify(initialRoles);
@@ -104,7 +119,7 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
           variant="gradient"
           color="green"
           onClick={handleSave}
-          disabled={!hasChanges} // Disable if no changes
+          disabled={!hasChanges}
         >
           Save Changes
         </Button>

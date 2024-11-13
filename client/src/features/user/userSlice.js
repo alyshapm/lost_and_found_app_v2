@@ -63,9 +63,7 @@ export const updateUser = createAsyncThunk(
   "user/update",
   async (data, thunkAPI) => {
     try {
-      const token = await tokenService.accessToken(data);
-
-      return await userService.updateUser(data, token);
+      return await userService.updateUser(data);
     } catch (error) {
       const message =
         (error.response &&
@@ -84,9 +82,7 @@ export const updateUserRole = createAsyncThunk(
   "user/update_role",
   async (data, thunkAPI) => {
     try {
-      const token = await tokenService.accessToken(data);
-
-      return await userService.updateUserRole(data, token);
+      return await userService.updateUserRole(data);
     } catch (error) {
       const message =
         (error.response &&
