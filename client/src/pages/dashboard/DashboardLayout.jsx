@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, Outlet, useNavigate} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import {
   Navbar,
   Typography,
@@ -18,28 +18,30 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import AppLogo from "../../assets/app-logo.png";
-import notifications from "../../data/notifications";
 import { logout } from "../../features/auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNotificationsByUser, markNotificationAsRead } from "../../features/notifications/notificationsSlice";
 
 function DashboardLayout() {
-  const [notificationList, setNotificationList] = useState(notifications);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { userInfor } = useSelector((state) => state.user);
+  const notifications = useSelector((state) => state.notifications.notifications); // Get notifications from global state
+
+  useEffect(() => {
+    if (userInfor && userInfor._id) {
+      dispatch(fetchNotificationsByUser(userInfor._id));
+    }
+  }, [dispatch, userInfor]);
+  
 
   const handleMarkAsRead = (id) => {
-    setNotificationList((prevList) =>
-      prevList.map((notification) =>
-        notification._id.$oid === id
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+    // Mark notification as read by dispatching the action
+    dispatch(markNotificationAsRead(id));
   };
 
   const handleLogout = () => {
-
     dispatch(logout());
     navigate("/");
   };
@@ -50,7 +52,9 @@ function DashboardLayout() {
     return null;
   };
 
-  const displayedNotifications = notificationList.slice(0, 3);
+  // Display first 3 notifications
+  const displayedNotifications = notifications.slice(0, 3);
+  console.log(displayedNotifications)
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -63,11 +67,7 @@ function DashboardLayout() {
               <MenuHandler>
                 <IconButton variant="text" color="blue-gray">
                   <Badge
-                    content={
-                      notificationList.filter(
-                        (notification) => !notification.read
-                      ).length
-                    }
+                    content={notifications.filter((notification) => !notification.read).length}
                     withBorder
                   >
                     <BellIcon className="h-5 w-5" />
@@ -77,9 +77,9 @@ function DashboardLayout() {
               <MenuList className="flex flex-col gap-2 w-80">
                 {displayedNotifications.map((notification) => (
                   <Link
-                    key={notification._id.$oid}
+                    key={notification.id} // Assuming _id is unique
                     to={getNotificationLink(notification.type)}
-                    onClick={() => handleMarkAsRead(notification._id.$oid)}
+                    onClick={() => handleMarkAsRead(notification.id)}
                     className={`flex flex-col gap-2 p-4 border-b ${
                       notification.read ? "bg-gray-100" : "bg-white"
                     }`}
@@ -106,7 +106,7 @@ function DashboardLayout() {
                     </div>
                   </Link>
                 ))}
-                {notificationList.length > 3 && (
+                {notifications.length > 3 && (
                   <Link
                     to="/dashboard/notifications"
                     className="text-blue-600 text-center py-2"

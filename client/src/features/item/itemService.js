@@ -56,7 +56,15 @@ const ItemService = {
     }
   },
 
-  // Add other item-related API calls here
+  async approveItem(itemId) {
+    try {
+      const response = await axiosInstance.put(`/items/approve/${itemId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error approving item", error);
+      throw error;
+    }
+  },
 };
 
 export default ItemService;

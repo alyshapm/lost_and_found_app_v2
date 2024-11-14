@@ -11,7 +11,7 @@ notifs_router = APIRouter()
 
 
 @notifs_router.get("/read/{user_id}", response_description="Fetch notifications by user", response_model=List[NotifResponse])
-async def fetch_notifications_by_user(user_id: int):
+async def fetch_notifications_by_user(user_id: str):
     notifications_cursor = notifsCollection.find({"user_id": user_id}).sort("created_at", -1)
     notifications = await notifications_cursor.to_list(length=100)
 

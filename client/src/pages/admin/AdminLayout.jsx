@@ -28,6 +28,8 @@ import {
   ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/react/24/solid";
 
+import { logout } from "../../features/auth/authSlice";
+
 function AdminLayout() {
   const { userInfor } = useSelector((state) => state.user);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -46,8 +48,10 @@ function AdminLayout() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  const dispatch = useDispatch()
   const handleLogout = () => {
-    navigate("/login");
+    dispatch(logout())
+    navigate("/");
   };
 
   const navItems = [

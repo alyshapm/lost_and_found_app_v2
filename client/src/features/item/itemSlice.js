@@ -101,6 +101,25 @@ export const deleteItem = createAsyncThunk(
   }
 );
 
+
+export const approveItem = createAsyncThunk(
+  "items/approveItem",
+  async (itemId, thunkAPI) => {
+    try {
+      return await itemService.approveItem(itemId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Create the slice
 const itemSlice = createSlice({
   name: "items",
@@ -198,6 +217,21 @@ const itemSlice = createSlice({
         state.filteredItems = state.items;
       })
       .addCase(deleteItem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      }).addCase(approveItem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(approveItem.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = Array.isArray(state.items)
+          ? state.items.map((item) =>
+              item._id === action.payload._id ? { ...item, status: "approved" } : item
+            )
+          : [];
+        state.filteredItems = state.items;
+      })
+      .addCase(approveItem.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       });

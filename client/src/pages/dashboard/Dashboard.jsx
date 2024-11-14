@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItems } from "../../features/item/itemSlice";
-// import { getUserInfor } from "../../features/user/userSlice";
 import {
   Typography,
   Button,
@@ -20,31 +19,6 @@ import { MapPinIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import ClaimItemDialog from "../../components/dashboard/ClaimitemDialog";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
-// // Sample data
-// const foundItems = [
-//   {
-//     id: 1,
-//     name: "Blue Backpack",
-//     location: "Library",
-//     dateFound: "2023-10-15",
-//   },
-//   {
-//     id: 2,
-//     name: "iPhone 12",
-//     location: "Student Center",
-//     dateFound: "2023-10-16",
-//   },
-//   { id: 3, name: "Water Bottle", location: "Gym", dateFound: "2023-10-17" },
-//   { id: 4, name: "Textbook", location: "Cafeteria", dateFound: "2023-10-18" },
-//   { id: 5, name: "Umbrella", location: "Parking Lot", dateFound: "2023-10-19" },
-//   {
-//     id: 6,
-//     name: "Laptop Charger",
-//     location: "Lecture Hall",
-//     dateFound: "2023-10-20",
-//   },
-// ];
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,9 +44,6 @@ function Dashboard() {
     dispatch(fetchItems());
   }, [dispatch]);
 
-
-  
-
   const handleLocationFilterChange = (location) => {
     if (selectedLocations.includes(location)) {
       setSelectedLocations(selectedLocations.filter((loc) => loc !== location));
@@ -87,15 +58,15 @@ function Dashboard() {
 
   const filteredItemsSearch = filteredItems.items?.filter(
     (item) =>
-      // Safely check for name and location
-      item.founded_by !== userInfor._id &&
+      item.founded_by !== userInfor._id && item.status === "active" &&
       (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
        item.location?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedLocations.length === 0 || selectedLocations.includes(item.location)) &&
       (!dateFilter[0] || new Date(item.dateFound) >= dateFilter[0]) &&
       (!dateFilter[1] || new Date(item.dateFound) <= dateFilter[1])
   );
-  
+
+  console.log(filteredItemsSearch)
 
   const handleClaimClick = (item) => {
     setSelectedItem(item);
@@ -129,11 +100,25 @@ function Dashboard() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItemsSearch?.map((item) => (
-            <Card key={item.id} className="mt-6">
+            <Card key={item._id} className="mt-6">
               <CardBody>
-                <Typography variant="h5" color="blue-gray" className="mb-2">
-                  {item.name}
-                </Typography>
+                <div className="flex justify-between items-start mb-2">
+                  <Typography variant="h5" color="blue-gray">
+                    {item.name}
+                  </Typography>
+                  <div className="flex space-x-2">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">
+                      {item.category}
+                    </span>
+                    {(item.status === 'active' || item.status === 'claimed') && (
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        item.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {item.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <Typography>Location: {item.found_at}</Typography>
                 <Typography>Date Found: {new Date(item.date_reported).toLocaleDateString()}</Typography>
                 <Typography>Time: {new Date(item.date_reported).toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit',})}</Typography>

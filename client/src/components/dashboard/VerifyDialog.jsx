@@ -31,10 +31,9 @@ const VerifyDialog = ({ isOpen, onClose, onConfirm, message }) => {
           label="I agree to the terms and conditions"
           checked={isAgreed}
           onChange={handleAgreeChange}
-          className="mt-4"
         />
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter className="space-x-4">
         <Button color="red" onClick={onClose}>
           Cancel
         </Button>
