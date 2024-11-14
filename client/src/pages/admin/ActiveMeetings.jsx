@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchMeetings,
@@ -12,63 +12,57 @@ import {
   Button,
   Chip,
   Card,
-  Input,
   Avatar,
 } from "@material-tailwind/react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import BaseTable from "../../components/admin/BaseTable";
 import ConfirmationDialog from "../../components/common/ConfirmationDialog";
+import TableControls from "../../components/admin/TableControls";
 
 const ActiveMeetings = () => {
   const dispatch = useDispatch();
   const { meetings } = useSelector((state) => state.meetings);
   const { allUsersInfor } = useSelector((state) => state.user);
-  const [searchQuery, setSearchQuery] = useState("");
+
   const [selectedMeetingId, setSelectedMeetingId] = useState(null);
   const [actionType, setActionType] = useState(""); // Track which action is being confirmed
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [filters, setFilters] = useState({}); // Stores filter selections
+  const [searchQuery, setSearchQuery] = useState(""); // Stores search input
 
   useEffect(() => {
     dispatch(fetchMeetings());
     dispatch(getAllUsersInfor());
   }, [dispatch]);
 
-  const filteredData = Array.isArray(meetings?.meetings)
-    ? meetings.meetings
-        .filter(
-          (meeting) =>
-            meeting.status === "submitted" || meeting.status === "approved"
-        )
-        .map((meeting) => {
-          // Find claimer info based on user_id in each meeting
-          const claimer = allUsersInfor?.users?.find(
-            (user) => user._id === meeting.user_id
-          );
-          return {
-            ...meeting,
-            claimer: claimer || null, // Add claimer info to each meeting
-          };
-        })
-        .filter((meeting) => {
-          const query = searchQuery.toLowerCase();
-          return (
-            meeting.meeting_date.toLowerCase().includes(query) ||
-            meeting.location.toLowerCase().includes(query)
-          );
-        })
-    : [];
-
-  // const handleApprove = (id) => {
-  //   dispatch(approveMeeting(id));
-  // };
-
-  // const handleReject = (id) => {
-  //   dispatch(rejectMeeting(id));
-  // };
-
-  // const handleComplete = (id) => {
-  //   dispatch(completeMeeting(id));
-  // };
+  // Filter and search meetings based on searchQuery and filters
+  const filteredData = useMemo(() => {
+    return Array.isArray(meetings?.meetings)
+      ? meetings.meetings
+          .filter(
+            (meeting) =>
+              meeting.status === "submitted" || meeting.status === "approved"
+          )
+          .map((meeting) => {
+            const claimer = allUsersInfor?.users?.find(
+              (user) => user._id === meeting.user_id
+            );
+            return {
+              ...meeting,
+              claimer: claimer || null,
+            };
+          })
+          .filter((meeting) => {
+            const query = searchQuery.toLowerCase();
+            return (
+              meeting.meeting_date.toLowerCase().includes(query) ||
+              meeting.location.toLowerCase().includes(query)
+            );
+          })
+          .filter((meeting) =>
+            filters.status ? meeting.status === filters.status : true
+          )
+      : [];
+  }, [meetings, allUsersInfor, searchQuery, filters]);
 
   const openConfirmationDialog = (meetingId, action) => {
     setSelectedMeetingId(meetingId);
@@ -83,17 +77,17 @@ const ActiveMeetings = () => {
       case "approve":
         dispatch(approveMeeting(selectedMeetingId)).then(() =>
           dispatch(fetchMeetings())
-        ); // Refresh table after action
+        );
         break;
       case "complete":
         dispatch(completeMeeting(selectedMeetingId)).then(() =>
           dispatch(fetchMeetings())
-        ); // Refresh table after action
+        );
         break;
       case "reject":
         dispatch(rejectMeeting(selectedMeetingId)).then(() =>
           dispatch(fetchMeetings())
-        ); // Refresh table after action
+        );
         break;
       default:
         break;
@@ -102,6 +96,19 @@ const ActiveMeetings = () => {
     setIsConfirmDialogOpen(false);
     setSelectedMeetingId(null);
     setActionType("");
+  };
+
+  const handleSearch = (query) => setSearchQuery(query);
+
+  const handleFilterChange = (filterName, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+  };
+
+  const handleDownload = () => {
+    console.log("Download data:", filteredData);
   };
 
   const columns = [
@@ -204,21 +211,27 @@ const ActiveMeetings = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <Typography variant="h4" color="blue-gray">
-          Active Meetings
-        </Typography>
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-4 bg-white shadow-md"
-            icon={<MagnifyingGlassIcon />}
-          />
-        </div>
-      </div>
+      <Typography variant="h4" color="blue-gray" className="mb-6">
+        Active Meetings
+      </Typography>
+
+      <TableControls
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onDownload={handleDownload}
+        filters={[
+          {
+            name: "status",
+            label: "Status",
+            options: [
+              { value: "", label: "All" },
+              { value: "submitted", label: "Submitted" },
+              { value: "approved", label: "Approved" },
+            ],
+          },
+        ]}
+      />
+
       <Card>
         <BaseTable columns={columns} data={filteredData} />
       </Card>

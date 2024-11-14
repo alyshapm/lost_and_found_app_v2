@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItems, deleteItem } from "../../features/item/itemSlice";
 import { getAllUsersInfor } from "../../features/user/userSlice";
-
 import {
   Typography,
   Button,
@@ -10,14 +9,13 @@ import {
   IconButton,
   Chip,
 } from "@material-tailwind/react";
-
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import BaseTable from "../../components/admin/BaseTable";
 import ItemDetailDialog from "../../components/admin/ItemDetailDialog";
 import AddItemDialog from "../../components/admin/AddItemDialog";
 import EditItemDialog from "../../components/admin/EditItemDialog";
 import ConfirmationDialog from "../../components/common/ConfirmationDialog";
-
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import TableControls from "../../components/admin/TableControls";
 
 function FoundItems() {
   const dispatch = useDispatch();
@@ -32,10 +30,49 @@ function FoundItems() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    status: "",
+    category: "",
+  });
+
   useEffect(() => {
     dispatch(fetchItems());
     dispatch(getAllUsersInfor());
   }, [dispatch]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [items, searchQuery, filters]);
+
+  const applyFilters = () => {
+    const filteredData = (items.items || [])
+      .filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .filter((item) =>
+        filters.status ? item.status === filters.status : true
+      )
+      .filter((item) =>
+        filters.category ? item.category === filters.category : true
+      );
+
+    setFilteredItems(filteredData);
+  };
+
+  const handleSearch = (query) => setSearchQuery(query);
+
+  const handleFilterChange = (filterName, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+  };
+
+  const handleDownload = () => {
+    console.log("Download data:", filteredItems);
+  };
 
   const handleItemClick = (item) => {
     const founderInfo = allUsersInfor.users.find(
@@ -157,20 +194,56 @@ function FoundItems() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <Typography variant="h4" color="blue-gray">
           Found Items
         </Typography>
         <Button onClick={handleAddItem}>Add Item</Button>
       </div>
-      <Card>
-        <BaseTable
-          columns={columns}
-          data={Array.isArray(items.items) ? items.items : []}
-          onRowClick={handleItemClick}
-          actions={actions}
-        />
-      </Card>
+
+      <TableControls
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onDownload={handleDownload}
+        filters={[
+          {
+            name: "status",
+            label: "Status",
+            options: [
+              { value: "", label: "All" },
+              { value: "claimed", label: "Claimed" },
+              { value: "waiting for approval", label: "Waiting for Approval" },
+              { value: "on hold", label: "On Hold" },
+            ],
+          },
+          {
+            name: "category",
+            label: "Category",
+            options: [
+              { value: "", label: "All" },
+              { value: "Electronics", label: "Electronics" },
+              { value: "Clothing", label: "Clothing" },
+              { value: "Stationery", label: "Stationery" },
+              // more categories as needed
+            ],
+          },
+        ]}
+      />
+
+      {isLoading ? (
+        <Typography variant="h6" color="gray">
+          Loading items...
+        </Typography>
+      ) : (
+        <Card>
+          <BaseTable
+            columns={columns}
+            data={filteredItems}
+            onRowClick={handleItemClick}
+            actions={actions}
+          />
+        </Card>
+      )}
 
       <ItemDetailDialog
         isOpen={isItemDialogOpen}

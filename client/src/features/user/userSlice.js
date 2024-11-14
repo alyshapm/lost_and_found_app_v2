@@ -85,12 +85,8 @@ export const updateUserRole = createAsyncThunk(
       return await userService.updateUserRole(data);
     } catch (error) {
       const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-
+        error.response?.data?.message || error.message || error.toString();
+      console.error("Error updating role:", error.response?.data);
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -106,13 +102,8 @@ export const updateUserStatus = createAsyncThunk(
       return await userService.updateUserStatus(data, token);
     } catch (error) {
       const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
-
-      return thunkAPI.rejectWithValue(message);
+        error.response?.data?.message || error.message || error.toString();
+      console.error("Error updating status:", error.response?.data);
     }
   }
 );
@@ -245,22 +236,6 @@ export const userSlice = createSlice({
         state.isLoading = false;
         state.message = action.payload;
       });
-    // delete user
-    // .addCase(deleteUser.pending, (state) => {
-    //     state.isLoading = true
-    // })
-    // .addCase(deleteUser.fulfilled, (state, action) => {
-    //     state.isLoading = false
-    //     state.isSuccess = true
-    //     state.message = action.payload.message
-    //     state.allUsersInfor = action.payload
-    //     // state.message = "User deleted"
-    // })
-    // .addCase(deleteUser.rejected, (state, action) => {
-    //     state.isLoading = false
-    //     state.isError = true
-    //     state.message = action.payload
-    // })
   },
 });
 

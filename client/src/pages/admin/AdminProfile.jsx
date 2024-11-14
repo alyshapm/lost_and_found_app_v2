@@ -11,13 +11,18 @@ import {
 } from "@material-tailwind/react";
 import { UserCircleIcon, CameraIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserInfor } from "../../features/user/userSlice";
+import { getUserInfor, updateUser } from "../../features/user/userSlice";
 import { convertFileToBase64 } from "../../utils/convertToBase64";
+import { useNavigate } from "react-router-dom";
+import ConfirmationDialog from "../../components/common/ConfirmationDialog";
 
 const AdminProfile = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { userInfor } = useSelector((state) => state.user);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [navigationPath, setNavigationPath] = useState(null);
 
   const [profileData, setProfileData] = useState({
     binusian_id: "",
@@ -30,6 +35,13 @@ const AdminProfile = () => {
     address: "",
     role: "",
     avatar: null,
+    bio: "",
+    youtube: "",
+    instagram: "",
+    facebook: "",
+    twitter: "",
+    github: "",
+    website: "",
   });
 
   useEffect(() => {
@@ -44,6 +56,17 @@ const AdminProfile = () => {
       }));
     }
   }, [userInfor]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasChanges]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,9 +84,30 @@ const AdminProfile = () => {
     setHasChanges(true);
   };
 
-  const handleSaveChanges = () => {
-    console.log("Saving profile data:", profileData);
-    // Implement save logic
+  const handleSaveChanges = (e) => {
+    e.preventDefault();
+    dispatch(updateUser(profileData))
+      .then(() => {
+        setHasChanges(false);
+      })
+      .catch((error) => {
+        console.error("Failed to update profile:", error);
+      });
+  };
+
+  const handleNavigation = (path) => {
+    if (hasChanges) {
+      setIsDialogOpen(true);
+      setNavigationPath(path);
+    } else {
+      navigate(path);
+    }
+  };
+
+  const confirmNavigation = () => {
+    setIsDialogOpen(false);
+    setHasChanges(false); // Discard unsaved changes
+    navigate(navigationPath);
   };
 
   return (
@@ -193,6 +237,13 @@ const AdminProfile = () => {
           </form>
         </CardBody>
       </Card>
+
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={confirmNavigation}
+        message="Are you sure you want to leave this page? Unsaved changes will be lost."
+      />
     </div>
   );
 };

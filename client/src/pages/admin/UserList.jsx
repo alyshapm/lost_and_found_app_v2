@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Typography,
@@ -8,43 +8,72 @@ import {
   Card,
 } from "@material-tailwind/react";
 import BaseTable from "../../components/admin/BaseTable";
-import ConfirmationDialog from "../../components/common/ConfirmationDialog";
+import TableControls from "../../components/admin/TableControls";
 import EditUserDialog from "../../components/admin/EditUserDialog";
 import { getAllUsersInfor } from "../../features/user/userSlice";
-
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import users from "../../data/users";
+import { PencilIcon } from "@heroicons/react/24/solid";
 
 function UserList() {
   const dispatch = useDispatch();
   const { allUsersInfor } = useSelector((state) => state.user);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    status: "",
+    role: "",
+  });
 
   useEffect(() => {
-    // Dispatch action to fetch all users from the backend
-    dispatch(getAllUsersInfor());
-  }, [dispatch]);
+    if (!isEditDialogOpen) {
+      dispatch(getAllUsersInfor());
+    }
+  }, [isEditDialogOpen, dispatch]);
 
-  const personalInfoData = Array.isArray(allUsersInfor?.users)
-    ? allUsersInfor.users.map((user) => ({
-        ...user.personal_info,
-        joinedAt: user.joinedAt,
-        _id: user._id,
-      }))
-    : [];
+  const personalInfoData = useMemo(() => {
+    return Array.isArray(allUsersInfor?.users)
+      ? allUsersInfor.users
+          .map((user) => ({
+            ...user.personal_info,
+            joinedAt: user.joinedAt,
+            _id: user._id,
+            status: user.personal_info.status, // Adding status to data for filtering
+            role: user.personal_info.role, // Adding role to data for filtering
+          }))
+          .filter((user) => {
+            const query = searchQuery.toLowerCase();
+            return (
+              user.name.toLowerCase().includes(query) ||
+              user.email.toLowerCase().includes(query)
+            );
+          })
+          .filter((user) =>
+            filters.status ? user.personal_info.status === filters.status : true
+          )
+          .filter((user) =>
+            filters.role
+              ? user.personal_info.role.includes(parseInt(filters.role))
+              : true
+          )
+      : [];
+  }, [allUsersInfor, searchQuery, filters]);
 
   const handleEditClick = (user) => {
     setSelectedUser(user);
     setIsEditDialogOpen(true);
   };
 
-  const refreshUserList = () => {
-    dispatch(getAllUsersInfor());
+  const handleSearch = (query) => setSearchQuery(query);
+
+  const handleFilterChange = (filterName, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
   };
 
-  const handleSaveUser = (updatedUser) => {
-    refreshUserList(); // Trigger refresh after saving
+  const handleDownload = () => {
+    console.log("Download data:", personalInfoData);
   };
 
   const columns = [
@@ -88,12 +117,11 @@ function UserList() {
       field: "role",
       render: (role) => {
         const roleLabels = {
-          5: { label: "GENERAL USER", color: "green" },
+          5: { label: "GENERAL USER", color: "purple" },
           4: { label: "STAFF", color: "amber" },
           3: { label: "ROOT ADMIN", color: "blue" },
         };
 
-        // Convert single role integer to an array if necessary
         const rolesArray = Array.isArray(role) ? role : [role];
 
         return (
@@ -152,10 +180,38 @@ function UserList() {
   ];
 
   return (
-    <div className="">
+    <div>
       <Typography variant="h4" className="mb-4">
         User List
       </Typography>
+
+      <TableControls
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onDownload={handleDownload}
+        filters={[
+          {
+            name: "status",
+            label: "Status",
+            options: [
+              { value: "", label: "All" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+            ],
+          },
+          {
+            name: "role",
+            label: "Role",
+            options: [
+              { value: "", label: "All" },
+              { value: "5", label: "General User" },
+              { value: "4", label: "Staff" },
+              { value: "3", label: "Root Admin" },
+            ],
+          },
+        ]}
+      />
+
       <Card>
         <BaseTable columns={columns} data={personalInfoData} />
       </Card>
@@ -164,7 +220,7 @@ function UserList() {
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
         user={selectedUser}
-        onSave={handleSaveUser}
+        refreshUserList={() => dispatch(getAllUsersInfor())}
       />
     </div>
   );

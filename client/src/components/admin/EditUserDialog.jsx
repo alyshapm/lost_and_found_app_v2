@@ -14,10 +14,9 @@ import {
 import {
   updateUserRole,
   updateUserStatus,
-  getAllUsersInfor,
 } from "../../features/user/userSlice"; // Import getAllUsersInfor to trigger refresh
 
-const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
+const EditUserDialog = ({ isOpen, onClose, user, refreshUserList }) => {
   const dispatch = useDispatch();
   const [roles, setRoles] = useState([]);
   const [status, setStatus] = useState(user?.status || "active");
@@ -44,22 +43,29 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
 
   const handleSave = async () => {
     try {
+      let roleUpdatePromise = Promise.resolve();
+      let statusUpdatePromise = Promise.resolve();
+
       if (JSON.stringify(roles) !== JSON.stringify(initialRoles)) {
-        console.log("Updating role with data:", { _id: user._id, role: roles }); // Log data being sent
-        dispatch(updateUserRole({ _id: user._id, role: roles }));
-      }
-      if (status !== initialStatus) {
-        console.log("Updating status with data:", { _id: user._id, status }); // Log data being sent
-        dispatch(updateUserStatus({ _id: user._id, status }));
+        roleUpdatePromise = dispatch(
+          updateUserRole({ _id: user._id, role: roles })
+        );
       }
 
-      if (onSave) {
-        onSave(); // Trigger refresh in UserList
+      if (status !== initialStatus) {
+        statusUpdatePromise = dispatch(
+          updateUserStatus({ _id: user._id, status })
+        );
       }
-      onClose(); // Close the dialog
+
+      await Promise.all([roleUpdatePromise, statusUpdatePromise]);
+
+      if (refreshUserList) {
+        refreshUserList();
+      }
+      onClose();
     } catch (error) {
       console.error("Error updating roles or status:", error);
-      // Handle any error feedback to the user here if necessary
     }
   };
 
@@ -104,7 +110,7 @@ const EditUserDialog = ({ isOpen, onClose, user, onSave }) => {
           <Select
             label="User Status"
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(value) => setStatus(value)} // Directly use `value` instead of `e.target.value`
           >
             <Option value="active">Active</Option>
             <Option value="inactive">Inactive</Option>
