@@ -13,7 +13,6 @@ import { accessToken } from "./features/token/tokenSlice";
 import ProtectedUserRoutes from "./common/ProtectedUserRoutes";
 import Unauthorized from "./common/Unauthorized";
 import RoleSelection from "./pages/auth/RoleSelection";
-import { Toaster } from "react-hot-toast";
 
 export default function App() {
   const { user, isLoggedOut } = useSelector((state) => state.auth);
