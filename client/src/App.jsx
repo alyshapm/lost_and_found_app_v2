@@ -10,7 +10,6 @@ import { AdminRoutes } from "./routes/AdminRoutes";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsersInfor, getUserInfor } from "./features/user/userSlice";
 import { accessToken } from "./features/token/tokenSlice";
-import ProtectedUserRoutes from "./common/ProtectedUserRoutes";
 import Unauthorized from "./common/Unauthorized";
 import RoleSelection from "./pages/auth/RoleSelection";
 
@@ -29,7 +28,6 @@ export default function App() {
   }, [isLoggedOut, dispatch, user]);
 
   return (
-    
     <Router>
       <Toaster />
       <Routes>
@@ -40,7 +38,6 @@ export default function App() {
             <ProtectedUserRoutes allowedRoles={[3, 4, 5]}>
               <DashboardRoutes />
             </ProtectedUserRoutes>
-          }q
         />
         <Route
           path="/admin/*"
@@ -54,6 +51,5 @@ export default function App() {
         <Route path="/select-role" element={<RoleSelection />} />
       </Routes>
     </Router>
-    
   );
 }

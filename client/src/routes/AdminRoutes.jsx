@@ -11,6 +11,8 @@ import BackLog from "../pages/admin/BackLog";
 import ActiveMeetings from "../pages/admin/ActiveMeetings";
 import MeetingsHistory from "../pages/admin/MeetingsHistory";
 
+import ProtectedUserRoutes from "./ProtectedUserRoutes";
+
 export const AdminRoutes = () => {
   return (
     <Routes>
@@ -18,11 +20,26 @@ export const AdminRoutes = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="found-items" element={<FoundItems />} />
         <Route path="claimed-items" element={<ClaimedItems />} />
-        <Route path="user-list" element={<UserList />} />
         <Route path="profile" element={<AdminProfile />} />
-        <Route path="back-log" element={<BackLog />} />
         <Route path="meetings" element={<ActiveMeetings />} />
         <Route path="meetings-history" element={<MeetingsHistory />} />
+
+        <Route
+          path="back-log"
+          element={
+            <ProtectedUserRoutes allowedRoles={[3]}>
+              <BackLog />
+            </ProtectedUserRoutes>
+          }
+        />
+        <Route
+          path="user-list"
+          element={
+            <ProtectedUserRoutes allowedRoles={[3]}>
+              <UserList />
+            </ProtectedUserRoutes>
+          }
+        />
 
         {/* Add routes for other pages */}
       </Route>

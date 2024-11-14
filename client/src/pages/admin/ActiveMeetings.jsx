@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import {
   fetchMeetings,
   approveMeeting,
@@ -73,22 +74,42 @@ const ActiveMeetings = () => {
   const handleConfirmAction = () => {
     if (!selectedMeetingId) return;
 
+    const fetchAndToast = (promise, successMessage, errorMessage) => {
+      promise
+        .then(() => {
+          toast.success(successMessage);
+          dispatch(fetchMeetings()); // Refresh meetings after action
+        })
+        .catch(() => {
+          toast.error(errorMessage);
+        });
+    };
+
     switch (actionType) {
       case "approve":
-        dispatch(approveMeeting(selectedMeetingId)).then(() =>
-          dispatch(fetchMeetings())
+        fetchAndToast(
+          dispatch(approveMeeting(selectedMeetingId)),
+          "Meeting approved successfully!",
+          "Failed to approve meeting."
         );
         break;
+
       case "complete":
-        dispatch(completeMeeting(selectedMeetingId)).then(() =>
-          dispatch(fetchMeetings())
+        fetchAndToast(
+          dispatch(completeMeeting(selectedMeetingId)),
+          "Meeting marked as complete!",
+          "Failed to complete meeting."
         );
         break;
+
       case "reject":
-        dispatch(rejectMeeting(selectedMeetingId)).then(() =>
-          dispatch(fetchMeetings())
+        fetchAndToast(
+          dispatch(rejectMeeting(selectedMeetingId)),
+          "Meeting rejected successfully!",
+          "Failed to reject meeting."
         );
         break;
+
       default:
         break;
     }

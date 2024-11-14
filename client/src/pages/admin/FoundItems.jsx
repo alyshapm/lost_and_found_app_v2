@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItems, deleteItem } from "../../features/item/itemSlice";
 import { getAllUsersInfor } from "../../features/user/userSlice";
@@ -102,13 +103,14 @@ function FoundItems() {
       dispatch(deleteItem(itemToDelete._id))
         .then((response) => {
           if (!response.error) {
-            console.log("Item deleted successfully");
-            refreshItems();
+            toast.success("Item deleted successfully!");
+            if (refreshItems) refreshItems();
           } else {
             console.error("Error deleting item:", response.error);
           }
         })
         .catch((error) => {
+          toast.error("Failed to delete item.");
           console.error("Error deleting item:", error);
         })
         .finally(() => {

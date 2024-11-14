@@ -30,8 +30,16 @@ import {
 
 import { logout } from "../../features/auth/authSlice";
 
+const ROLE = {
+  GENERAL_USER: 5,
+  STAFF: 4,
+  ROOT_ADMIN: 3,
+};
+
 function AdminLayout() {
   const { userInfor } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.auth);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const navigate = useNavigate();
@@ -48,9 +56,9 @@ function AdminLayout() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch(logout())
+    dispatch(logout());
     navigate("/");
   };
 
@@ -116,48 +124,60 @@ function AdminLayout() {
     </div>
   );
 
-  const Sidebar = () => (
-    <div className="lg:static min-h-screen bg-white shadow-lg w-64">
-      <div className="p-4 border-b">
-        <Typography variant="h5" color="blue-gray">
-          Admin Dashboard
-        </Typography>
-      </div>
-      <List>
-        {navItems.map((item, index) => (
-          <ListItem
-            key={index}
-            selected={location.pathname === item.path}
-            className="mb-1"
-          >
-            <Link to={item.path} className="flex items-center w-full">
-              <ListItemPrefix>
-                <item.icon className="h-5 w-5" />
-              </ListItemPrefix>
-              {item.label}
-              {item.badge && (
-                <ListItemSuffix>
-                  <Chip
-                    value={item.badge}
-                    size="sm"
-                    variant="ghost"
-                    color="blue-gray"
-                    className="rounded-full"
-                  />
-                </ListItemSuffix>
-              )}
-            </Link>
+  const Sidebar = () => {
+    const filteredNavItems = navItems.filter((item) => {
+      if (
+        user.selectedRole === ROLE.STAFF &&
+        (item.label === "User List" || item.label === "Back Log")
+      ) {
+        return false;
+      }
+      return true;
+    });
+
+    return (
+      <div className="lg:static min-h-screen bg-white shadow-lg w-64">
+        <div className="p-4 border-b">
+          <Typography variant="h5" color="blue-gray">
+            Admin Dashboard
+          </Typography>
+        </div>
+        <List>
+          {filteredNavItems.map((item, index) => (
+            <ListItem
+              key={index}
+              selected={location.pathname === item.path}
+              className="mb-1"
+            >
+              <Link to={item.path} className="flex items-center w-full">
+                <ListItemPrefix>
+                  <item.icon className="h-5 w-5" />
+                </ListItemPrefix>
+                {item.label}
+                {item.badge && (
+                  <ListItemSuffix>
+                    <Chip
+                      value={item.badge}
+                      size="sm"
+                      variant="ghost"
+                      color="blue-gray"
+                      className="rounded-full"
+                    />
+                  </ListItemSuffix>
+                )}
+              </Link>
+            </ListItem>
+          ))}
+          <ListItem onClick={handleLogout} className="mt-auto">
+            <ListItemPrefix>
+              <PowerIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Log Out
           </ListItem>
-        ))}
-        <ListItem onClick={handleLogout} className="mt-auto">
-          <ListItemPrefix>
-            <PowerIcon className="h-5 w-5" />
-          </ListItemPrefix>
-          Log Out
-        </ListItem>
-      </List>
-    </div>
-  );
+        </List>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-100">

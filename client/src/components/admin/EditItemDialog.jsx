@@ -11,6 +11,7 @@ import {
   Textarea,
   Typography,
 } from "@material-tailwind/react";
+import toast from "react-hot-toast";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { useDropzone } from "react-dropzone";
 import { convertFileToBase64 } from "../../utils/convertToBase64";
@@ -126,10 +127,14 @@ const EditItemDialog = ({ isOpen, onClose, item, refreshItems }) => {
   const handleSaveChanges = () => {
     dispatch(editItem({ itemId: item._id, updatedItem: formData }))
       .then(() => {
-        onClose();
+        toast.success("Item updated successfully!");
         if (refreshItems) refreshItems();
+        onClose();
       })
-      .catch((error) => console.error("Error updating item:", error));
+      .catch((error) => {
+        toast.error("Failed to update item.");
+        console.error("Error updating item:", error);
+      });
   };
 
   return (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 import {
   Dialog,
   DialogBody,
@@ -59,6 +60,7 @@ const EditUserDialog = ({ isOpen, onClose, user, refreshUserList }) => {
       }
 
       await Promise.all([roleUpdatePromise, statusUpdatePromise]);
+      toast.success("User updated successfully!");
 
       if (refreshUserList) {
         refreshUserList();

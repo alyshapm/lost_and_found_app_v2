@@ -9,6 +9,7 @@ import {
   Option,
   Textarea,
 } from "@material-tailwind/react";
+import toast from "react-hot-toast";
 import { UserCircleIcon, CameraIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserInfor, updateUser } from "../../features/user/userSlice";
@@ -88,9 +89,11 @@ const AdminProfile = () => {
     e.preventDefault();
     dispatch(updateUser(profileData))
       .then(() => {
+        toast.success("User updated successfully!");
         setHasChanges(false);
       })
       .catch((error) => {
+        toast.error("Failed to update user.");
         console.error("Failed to update profile:", error);
       });
   };

@@ -11,10 +11,12 @@ import {
   Textarea,
   Typography,
 } from "@material-tailwind/react";
+import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { convertFileToBase64 } from "../../utils/convertToBase64";
+import CreateAccountDialog from "./CreateAccountDialog";
 
 import { addItem } from "../../features/item/itemSlice";
 import { getAllUsersInfor } from "../../features/user/userSlice";
@@ -58,7 +60,6 @@ const ImageUpload = ({ onFileChange }) => {
 const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
   const dispatch = useDispatch();
   const { allUsersInfor, userInfor } = useSelector((state) => state.user);
-  
 
   useEffect(() => {
     dispatch(getAllUsersInfor());
@@ -86,11 +87,12 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
   const [searchEmail, setSearchEmail] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] =
+    useState(false);
 
   const handleSearchEmail = (email) => {
     setSearchEmail(email);
     if (email && allUsersInfor && allUsersInfor.users) {
-      // Ensure allUsersInfor and users exist
       const filtered = allUsersInfor.users.filter((user) =>
         user.personal_info.email.toLowerCase().includes(email.toLowerCase())
       );
@@ -103,7 +105,7 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
   };
 
   const handleEmailSelect = (user) => {
-    setFormData({ ...formData, founded_by: user._id }); // Set user ID
+    setFormData({ ...formData, founded_by: user._id });
     setSearchEmail(user.personal_info.email);
     setFilteredUsers([]);
     setShowCreateAccount(false);
@@ -111,11 +113,11 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
 
   const handleFileChange = async (file) => {
     const base64Image = await convertFileToBase64(file);
-    setFormData({ ...formData, item_img: base64Image }); // Set base64 image to item_img
+    setFormData({ ...formData, item_img: base64Image });
   };
 
   const handleAddItem = () => {
-    console.log(filteredUsers)
+    console.log(filteredUsers);
     const itemData = {
       name: formData.name,
       category: formData.category,
@@ -131,10 +133,18 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
     // console.log(itemData);
     dispatch(addItem(itemData))
       .then(() => {
-        onClose();
+        toast.success("Item added successfully!");
         if (refreshItems) refreshItems();
+        onClose();
       })
-      .catch((error) => console.error("Error adding item:", error));
+      .catch((error) => {
+        toast.error("Failed to add item.");
+        console.error("Error adding item:", error);
+      });
+  };
+
+  const handleCreateAccountClick = () => {
+    setIsCreateAccountDialogOpen(true);
   };
 
   return (
@@ -210,7 +220,7 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
               label="Search Founder's Email"
               name="searchEmail"
               value={searchEmail}
-              onChange={(e) => handleSearchEmail(e.target.value)} // Call the search function
+              onChange={(e) => handleSearchEmail(e.target.value)}
             />
             {filteredUsers.length > 0 && (
               <div className="bg-white border border-gray-300 rounded-md shadow-md max-h-48 overflow-y-auto mt-2">
@@ -227,11 +237,9 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
             )}
             {showCreateAccount && (
               <Button
-                variant="text"
+                variant="outlined"
                 color="blue"
-                onClick={() =>
-                  /* logic to open create new account dialog */ null
-                }
+                onClick={handleCreateAccountClick}
                 className="mt-2"
               >
                 Create New Account
@@ -267,6 +275,11 @@ const AddItemDialog = ({ isOpen, onClose, refreshItems }) => {
           Add Item
         </Button>
       </DialogFooter>
+
+      <CreateAccountDialog
+        isOpen={isCreateAccountDialogOpen}
+        onClose={() => setIsCreateAccountDialogOpen(false)}
+      />
     </Dialog>
   );
 };
