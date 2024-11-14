@@ -11,6 +11,7 @@ import { accessToken } from "./features/token/tokenSlice";
 import ProtectedUserRoutes from "./common/ProtectedUserRoutes";
 import Unauthorized from "./common/Unauthorized";
 import RoleSelection from "./pages/auth/RoleSelection";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   const { user, isLoggedOut } = useSelector((state) => state.auth);
@@ -27,7 +28,9 @@ export default function App() {
   }, [isLoggedOut, dispatch, user]);
 
   return (
+    
     <Router>
+      <Toaster />
       <Routes>
         <Route path="/*" element={<HomeRoutes />} />
         <Route
@@ -36,7 +39,7 @@ export default function App() {
             <ProtectedUserRoutes allowedRoles={[3, 4, 5]}>
               <DashboardRoutes />
             </ProtectedUserRoutes>
-          }
+          }q
         />
         <Route
           path="/admin/*"
@@ -50,5 +53,6 @@ export default function App() {
         <Route path="/select-role" element = {<RoleSelection/>}/>
       </Routes>
     </Router>
+    
   );
 }
