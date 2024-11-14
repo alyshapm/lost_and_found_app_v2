@@ -15,7 +15,7 @@ import {
   UserIcon,
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
-
+import Hero from "../../components/common/Hero";
 import AppLogo from "../../assets/app-logo.png";
 
 export function Home() {
@@ -31,22 +31,25 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="bg-blue-gray-50 py-20 px-4">
-        <div className="container mx-auto text-center">
-          <Typography variant="h1" color="blue-gray" className="mb-4">
-            Find What You've Lost
-          </Typography>
-          <Typography variant="lead" color="blue-gray" className="mb-8">
-            Our campus-wide lost and found system helps you recover your
-            belongings quickly and easily.
-          </Typography>
-          <div className="flex justify-center gap-4">
-            <Button size="lg" color="blue">
-              <Link to="/sign-in">Browse Found Items</Link>
+      <Hero />
+
+      <div className="container mx-auto px-4 -mt-8 relative z-20">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex-grow">
+              <Input
+                type="text"
+                placeholder="Search for lost items..."
+                className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-gray-900 focus:!border-t-gray-900 focus:ring-gray-900/10"
+                labelProps={{
+                  className: "hidden",
+                }}
+                containerProps={{ className: "min-w-[100px]" }}
+              />
+            </div>
+            <Button className="flex items-center gap-3" size="lg">
+              <MagnifyingGlassIcon strokeWidth={2} className="h-5 w-5" /> Search
             </Button>
-            {/* <Button size="lg" color="blue" variant="outlined">
-              Report Lost Item
-            </Button> */}
           </div>
         </div>
       </div>
@@ -168,54 +171,10 @@ export function Home() {
       </div>
 
       <footer className="bg-blue-gray-900 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-between">
-            <div className="w-full md:w-1/3 mb-6 md:mb-0">
-              <Typography variant="h6" className="mb-4">
-                Quick Links
-              </Typography>
-              <ul>
-                <li>
-                  <a href="#" className="hover:text-blue-300">
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-300">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-300">
-                    How It Works
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-300">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="w-full md:w-1/3">
-              <Typography variant="h6" className="mb-4">
-                Stay Connected
-              </Typography>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="mb-4"
-              />
-              <Button color="white" variant="outlined">
-                Subscribe
-              </Button>
-            </div>
-          </div>
-          <div className="border-t border-blue-gray-700 mt-8 pt-8 text-center">
-            <Typography>
-              &copy; 2024 BINUS University International. All rights reserved.
-            </Typography>
-          </div>
+        <div className=" mt-8 pt-8 text-center">
+          <Typography>
+            &copy; 2024 BINUS University International. All rights reserved.
+          </Typography>
         </div>
       </footer>
     </div>

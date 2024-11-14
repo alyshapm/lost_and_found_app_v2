@@ -1,4 +1,6 @@
 import React from "react";
+import "./App.css";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -47,7 +49,7 @@ export default function App() {
           }
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/select-role" element = {<RoleSelection/>}/>
+        <Route path="/select-role" element={<RoleSelection />} />
       </Routes>
     </Router>
   );

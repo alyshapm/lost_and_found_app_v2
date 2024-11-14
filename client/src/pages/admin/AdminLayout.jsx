@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Navbar,
@@ -28,6 +29,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 function AdminLayout() {
+  const { userInfor } = useSelector((state) => state.user);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const navigate = useNavigate();
@@ -45,7 +47,6 @@ function AdminLayout() {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleLogout = () => {
-    // Implement logout logic here
     navigate("/login");
   };
 
@@ -74,8 +75,45 @@ function AdminLayout() {
     { icon: UserCircleIcon, label: "Profile", path: "/admin/profile" },
   ];
 
+  const Header = () => (
+    <div className="w-full bg-white shadow-md px-4 py-3">
+      <div className="flex items-center justify-between text-blue-gray-900">
+        <div className="flex items-center">
+          {isSmallScreen && (
+            <IconButton
+              variant="text"
+              color="blue-gray"
+              className="mr-2"
+              onClick={toggleSidebar}
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </IconButton>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          {userInfor?.personal_info ? (
+            <div className="flex items-center gap-2">
+              <Avatar
+                size="sm"
+                variant="circular"
+                alt={userInfor.personal_info.name || "Admin"}
+                src={userInfor.personal_info.avatar || "/default-avatar.png"}
+                className="border border-blue-500 p-0.5"
+              />
+              <Typography color="blue-gray">
+                {userInfor.personal_info.name || "Admin"}
+              </Typography>
+            </div>
+          ) : (
+            <Typography color="blue-gray">Loading...</Typography>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   const Sidebar = () => (
-    <div className="h-full bg-white shadow-lg">
+    <div className="lg:static min-h-screen bg-white shadow-lg w-64">
       <div className="p-4 border-b">
         <Typography variant="h5" color="blue-gray">
           Admin Dashboard
@@ -118,65 +156,23 @@ function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Persistent Sidebar for larger screens */}
-      {!isSmallScreen && (
-        <div className="w-64 hidden lg:block">
-          <Sidebar />
-        </div>
-      )}
+    <div className="min-h-screen flex bg-gray-100">
+      {!isSmallScreen && <Sidebar />}
 
-      {/* Collapsible Sidebar for smaller screens */}
       {isSmallScreen && (
         <Drawer
           open={isSidebarOpen}
           onClose={toggleSidebar}
-          className="p-0 fixed left-0 h-screen"
+          className="p-0 fixed left-0 h-screen w-64"
           overlay={true}
         >
           <Sidebar />
         </Drawer>
       )}
 
-      <div className="flex-1 flex flex-col">
-        <Navbar className="max-w-full rounded-none px-4 py-3 mx-auto">
-          <div className="flex items-center justify-between text-blue-gray-900">
-            <div className="flex items-center">
-              {isSmallScreen && (
-                <IconButton
-                  variant="text"
-                  color="blue-gray"
-                  className="mr-2"
-                  onClick={toggleSidebar}
-                >
-                  <Bars3Icon className="h-6 w-6" />
-                </IconButton>
-              )}
-              <Typography
-                as="a"
-                href="#"
-                className="mr-4 cursor-pointer py-1.5 font-medium"
-              >
-                Lost and Found Admin
-              </Typography>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:flex items-center gap-2">
-                <Avatar
-                  size="sm"
-                  variant="circular"
-                  alt="John Doe"
-                  src="https://docs.material-tailwind.com/img/face-2.jpg"
-                  className="border border-blue-500 p-0.5"
-                />
-                <Typography color="blue-gray">John Doe</Typography>
-              </div>
-            </div>
-          </div>
-        </Navbar>
-
-        {/* Page Content */}
-        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+      <div className="flex flex-col flex-grow h-screen">
+        <Header />
+        <div className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </div>
       </div>
