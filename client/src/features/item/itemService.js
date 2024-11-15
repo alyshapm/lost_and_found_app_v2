@@ -66,15 +66,24 @@ const ItemService = {
     }
   },
 
-  async claimItem(itemId,payload) {
-    try {
-      const response = await axiosInstance.put(`/items/claim/${itemId}`, payload);
-      return response.data;
-    } catch (error) {
-      console.error("Error claiming item", error);
-      throw error;
-    }
-  },
+  // async claimItem(itemId, payload) {
+  //   try {
+  //     const response = await axiosInstance.put(
+  //       `/items/claim/${itemId}`, 
+  //       payload,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         }
+  //       }
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error claiming item", error);
+  //     throw error;
+  //   }
+  // }
+  
 };
 
 export default ItemService;

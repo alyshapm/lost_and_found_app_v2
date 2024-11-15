@@ -16,27 +16,30 @@ function ClaimedItems() {
   const dispatch = useDispatch();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
-
-  useEffect(() => {
-    dispatch(fetchMeetings());
-    dispatch(fetchItems());
-  }, [dispatch]);
+  const [claimedItemsByUser, setClaimedItemsByUser] = useState([]);
 
   const { meetings } = useSelector((state) => state.meetings);
   const { filteredItems } = useSelector((state) => state.items);
   const { userInfor } = useSelector((state) => state.user);
 
-  const claimedItems =
-    filteredItems?.items?.filter((item) =>
-      meetings?.meetings?.some(
-        (meeting) =>
-          meeting.item_id === item._id && meeting.user_id === userInfor?._id
-      )
-    ) || [];
+  // Fetch meetings and items data on component mount
+  useEffect(() => {
+    dispatch(fetchMeetings());
+    dispatch(fetchItems());
+  }, [dispatch]);
 
-  if (!meetings || !filteredItems) {
-    return <div>Loading...</div>;
-  }
+  // Update claimedItemsByUser when filteredItems, meetings, or userInfor changes
+  useEffect(() => {
+    if (filteredItems?.items && meetings?.meetings && userInfor?._id) {
+      const userClaimedItems = filteredItems.items.filter((item) =>
+        meetings.meetings.some(
+          (meeting) =>
+            meeting.item_id === item._id && meeting.user_id === userInfor._id
+        )
+      );
+      setClaimedItemsByUser(userClaimedItems);
+    }
+  }, [filteredItems, meetings, userInfor]);
 
   const openVerifyDialog = (itemId) => {
     setSelectedItemId(itemId);
@@ -45,20 +48,25 @@ function ClaimedItems() {
 
   const handleVerifyConfirm = () => {
     const claimPayload = {
-      claimed_by: userInfor._id
+      claimed_by: userInfor._id,
     };
-    
-    console.log("ID", selectedItemId)
-    console.log("PAYLOAD", claimPayload)
-    dispatch(verifyClaim(selectedItemId, claimPayload )).then(
+
+    dispatch(verifyClaim({ itemId: selectedItemId, payload: claimPayload })).then(
       (response) => {
         if (!response.error) {
           toast.success("You have verified your claim of this item!", {
             position: "top-center",
             autoClose: 3000,
           });
+          
+          // Update the claimed item’s status in local state after verification
+          setClaimedItemsByUser((prevItems) =>
+            prevItems.map((item) =>
+              item._id === selectedItemId ? { ...item, status: "verified" } : item
+            )
+          );
         } else {
-          toast.error("Failed to approve item.", {
+          toast.error("Failed to verify item claim.", {
             position: "top-center",
             autoClose: 3000,
           });
@@ -74,11 +82,11 @@ function ClaimedItems() {
       <Typography variant="h2" color="blue-gray" className="mb-4">
         Claimed Items
       </Typography>
-      {claimedItems?.length === 0 ? (
+      {claimedItemsByUser.length === 0 ? (
         <Typography>No claimed items</Typography>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {claimedItems.map((item) => {
+          {claimedItemsByUser.map((item) => {
             const meeting = meetings.meetings.find(
               (m) => m.item_id === item._id && m.user_id === userInfor._id
             );
