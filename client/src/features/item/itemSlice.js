@@ -120,6 +120,20 @@ export const approveItem = createAsyncThunk(
   }
 );
 
+// Thunk for verifying a claim
+export const verifyClaim = createAsyncThunk(
+  "items/verifyClaim",
+  async (itemId, payload, thunkAPI) => {
+    try {
+      const response = await itemService.claimItem(itemId,payload); // Adjust itemService to include `claimItem`
+      return response;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Create the slice
 const itemSlice = createSlice({
   name: "items",
@@ -234,7 +248,21 @@ const itemSlice = createSlice({
       .addCase(approveItem.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
-      });
+      }) .addCase(verifyClaim.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(verifyClaim.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Update the item status to "claimed" in the state
+        state.items = state.items.map((item) =>
+          item._id === action.payload._id ? { ...item, status: "claimed" } : item
+        );
+        state.filteredItems = state.items;
+      })
+      .addCase(verifyClaim.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });;
   },
 });
 

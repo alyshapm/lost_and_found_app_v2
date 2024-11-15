@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
@@ -8,10 +8,14 @@ import {
 } from "@material-tailwind/react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchMeetings } from "../../features/meeting/meetingSlice";
-import { fetchItems } from "../../features/item/itemSlice";
+import { fetchItems, verifyClaim } from "../../features/item/itemSlice";
+import VerifyDialog from "../../components/dashboard/VerifyDialog";
+import { toast } from "react-hot-toast";
 
 function ClaimedItems() {
   const dispatch = useDispatch();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchMeetings());
@@ -22,7 +26,6 @@ function ClaimedItems() {
   const { filteredItems } = useSelector((state) => state.items);
   const { userInfor } = useSelector((state) => state.user);
 
-  // Ensure meetings and filteredItems are defined before accessing them
   const claimedItems =
     filteredItems?.items?.filter((item) =>
       meetings?.meetings?.some(
@@ -31,14 +34,39 @@ function ClaimedItems() {
       )
     ) || [];
 
-  // Handle loading state or error
   if (!meetings || !filteredItems) {
     return <div>Loading...</div>;
   }
 
-  const handleVerifyClaim = (itemId) => {
-    // Add dispatch or logic for verifying the claim here
-    console.log(`Verifying claim for item with ID: ${itemId}`);
+  const openVerifyDialog = (itemId) => {
+    setSelectedItemId(itemId);
+    setIsDialogOpen(true);
+  };
+
+  const handleVerifyConfirm = () => {
+    const claimPayload = {
+      claimed_by: userInfor._id
+    };
+    
+    console.log("ID", selectedItemId)
+    console.log("PAYLOAD", claimPayload)
+    dispatch(verifyClaim(selectedItemId, claimPayload )).then(
+      (response) => {
+        if (!response.error) {
+          toast.success("You have verified your claim of this item!", {
+            position: "top-center",
+            autoClose: 3000,
+          });
+        } else {
+          toast.error("Failed to approve item.", {
+            position: "top-center",
+            autoClose: 3000,
+          });
+        }
+      }
+    );
+
+    setIsDialogOpen(false);
   };
 
   return (
@@ -67,11 +95,11 @@ function ClaimedItems() {
                 </CardBody>
                 <CardFooter className="pt-0">
                   <Button>View Details</Button>
-                  {meeting?.status === "complete" && item.status === "on hold" && (
+                  {meeting?.status === "completed" && item.status === "on hold" && (
                     <Button
                       color="green"
                       className="mt-2"
-                      onClick={() => handleVerifyClaim(item._id)}
+                      onClick={() => openVerifyDialog(item._id)}
                     >
                       Verify Claim
                     </Button>
@@ -82,6 +110,12 @@ function ClaimedItems() {
           })}
         </div>
       )}
+      <VerifyDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleVerifyConfirm}
+        message="Please confirm you are the rightful claimant of this item."
+      />
     </div>
   );
 }

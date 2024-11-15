@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Card,
@@ -9,13 +9,29 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 
+import { useSelector, useDispatch } from "react-redux";
+import { updateUser } from "../../features/user/userSlice";
+
 function Profile() {
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(123) 456-7890",
-    bio: "I am a student at XYZ University.",
-  });
+  const [profile, setProfile] = useState({})
+
+  const { userInfor } = useSelector((state) => state.user);
+  //   name: "John Doe",
+  //   email: "john.doe@example.com",
+  //   phone: "(123) 456-7890",
+  //   bio: "I am a student at XYZ University.",
+  // });
+  console.log(userInfor)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (userInfor) {
+      setProfile((prevData) => ({
+        ...prevData,
+        ...userInfor.personal_info,
+      }));
+    }
+  }, [userInfor]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +45,29 @@ function Profile() {
     e.preventDefault();
     // Here you would typically send the updated profile to your backend
     console.log("Updated profile:", profile);
+    dispatch(updateUser(profile))
+    // .then(() => {
+    //   setHasChanges(false);
+    // })
+    .catch((error) => {
+      console.error("Failed to update profile:", error);
+    });
+
+    
   };
+
+
+  // const handleSaveChanges = (e) => {
+  //   e.preventDefault();
+  //   console.log("Updated profile:", profile);
+  //   dispatch(updateUser(profile))
+  //     .then(() => {
+  //       setHasChanges(false);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Failed to update profile:", error);
+  //     });
+  // };
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -65,6 +65,16 @@ const ItemService = {
       throw error;
     }
   },
+
+  async claimItem(itemId,payload) {
+    try {
+      const response = await axiosInstance.put(`/items/claim/${itemId}`, payload);
+      return response.data;
+    } catch (error) {
+      console.error("Error claiming item", error);
+      throw error;
+    }
+  },
 };
 
 export default ItemService;
