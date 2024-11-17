@@ -20,21 +20,25 @@ import {
 import AppLogo from "../../assets/app-logo.png";
 import { logout } from "../../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchNotificationsByUser, markNotificationAsRead } from "../../features/notifications/notificationsSlice";
+import {
+  fetchNotificationsByUser,
+  markNotificationAsRead,
+} from "../../features/notifications/notificationsSlice";
 
 function DashboardLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfor } = useSelector((state) => state.user);
-  const notifications = useSelector((state) => state.notifications.notifications); // Get notifications from global state
+  const notifications = useSelector(
+    (state) => state.notifications.notifications
+  );
 
   useEffect(() => {
     if (userInfor && userInfor._id) {
       dispatch(fetchNotificationsByUser(userInfor._id));
     }
   }, [dispatch, userInfor]);
-  
 
   const handleMarkAsRead = (id) => {
     // Mark notification as read by dispatching the action
@@ -54,7 +58,6 @@ function DashboardLayout() {
 
   // Display first 3 notifications
   const displayedNotifications = notifications.slice(0, 3);
-  console.log(displayedNotifications)
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -67,7 +70,10 @@ function DashboardLayout() {
               <MenuHandler>
                 <IconButton variant="text" color="blue-gray">
                   <Badge
-                    content={notifications.filter((notification) => !notification.read).length}
+                    content={
+                      notifications.filter((notification) => !notification.read)
+                        .length
+                    }
                     withBorder
                   >
                     <BellIcon className="h-5 w-5" />
@@ -130,7 +136,7 @@ function DashboardLayout() {
                     size="sm"
                     alt="User"
                     className="border border-blue-500 p-0.5"
-                    src="/placeholder.svg?height=32&width=32"
+                    src={"https://placehold.co/400"}
                   />
                 </Button>
               </MenuHandler>

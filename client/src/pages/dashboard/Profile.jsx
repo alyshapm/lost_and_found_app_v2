@@ -13,16 +13,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../../features/user/userSlice";
 
 function Profile() {
-  const [profile, setProfile] = useState({})
+  const [profile, setProfile] = useState({});
 
   const { userInfor } = useSelector((state) => state.user);
-  //   name: "John Doe",
-  //   email: "john.doe@example.com",
-  //   phone: "(123) 456-7890",
-  //   bio: "I am a student at XYZ University.",
-  // });
-  console.log(userInfor)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userInfor) {
@@ -43,19 +37,14 @@ function Profile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the updated profile to your backend
-    console.log("Updated profile:", profile);
     dispatch(updateUser(profile))
-    // .then(() => {
-    //   setHasChanges(false);
-    // })
-    .catch((error) => {
-      console.error("Failed to update profile:", error);
-    });
-
-    
+      // .then(() => {
+      //   setHasChanges(false);
+      // })
+      .catch((error) => {
+        console.error("Failed to update profile:", error);
+      });
   };
-
 
   // const handleSaveChanges = (e) => {
   //   e.preventDefault();

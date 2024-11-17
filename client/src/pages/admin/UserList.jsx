@@ -31,6 +31,8 @@ function UserList() {
     }
   }, [isEditDialogOpen, dispatch]);
 
+  console.log("All users:", allUsersInfor);
+
   const personalInfoData = useMemo(() => {
     return Array.isArray(allUsersInfor?.users)
       ? allUsersInfor.users

@@ -51,28 +51,28 @@ function ClaimedItems() {
       claimed_by: userInfor._id,
     };
 
-    dispatch(verifyClaim({ itemId: selectedItemId, payload: claimPayload })).then(
-      (response) => {
-        if (!response.error) {
-          toast.success("You have verified your claim of this item!", {
-            position: "top-center",
-            autoClose: 3000,
-          });
-          
-          // Update the claimed item’s status in local state after verification
-          setClaimedItemsByUser((prevItems) =>
-            prevItems.map((item) =>
-              item._id === selectedItemId ? { ...item, status: "verified" } : item
-            )
-          );
-        } else {
-          toast.error("Failed to verify item claim.", {
-            position: "top-center",
-            autoClose: 3000,
-          });
-        }
+    dispatch(
+      verifyClaim({ itemId: selectedItemId, payload: claimPayload })
+    ).then((response) => {
+      if (!response.error) {
+        toast.success("You have verified your claim of this item!", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+
+        // Update the claimed item’s status in local state after verification
+        setClaimedItemsByUser((prevItems) =>
+          prevItems.map((item) =>
+            item._id === selectedItemId ? { ...item, status: "verified" } : item
+          )
+        );
+      } else {
+        toast.error("Failed to verify item claim.", {
+          position: "top-center",
+          autoClose: 3000,
+        });
       }
-    );
+    });
 
     setIsDialogOpen(false);
   };
@@ -103,15 +103,16 @@ function ClaimedItems() {
                 </CardBody>
                 <CardFooter className="pt-0">
                   <Button>View Details</Button>
-                  {meeting?.status === "completed" && item.status === "on hold" && (
-                    <Button
-                      color="green"
-                      className="mt-2"
-                      onClick={() => openVerifyDialog(item._id)}
-                    >
-                      Verify Claim
-                    </Button>
-                  )}
+                  {meeting?.status === "completed" &&
+                    item.status === "on hold" && (
+                      <Button
+                        color="green"
+                        className="mt-2"
+                        onClick={() => openVerifyDialog(item._id)}
+                      >
+                        Verify Claim
+                      </Button>
+                    )}
                 </CardFooter>
               </Card>
             );

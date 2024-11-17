@@ -69,13 +69,13 @@ function AdminLayout() {
       icon: InboxIcon,
       label: "Claimed Items",
       path: "/admin/claimed-items",
-      badge: 14,
+      // badge: 14,
     },
     {
       icon: ChatBubbleBottomCenterTextIcon,
       label: "Active Meetings",
       path: "/admin/meetings",
-      badge: 5,
+      // badge: 5,
     },
     {
       icon: ChatBubbleBottomCenterTextIcon,
@@ -139,7 +139,7 @@ function AdminLayout() {
       <div className="lg:static min-h-screen bg-white shadow-lg w-64">
         <div className="p-4 border-b">
           <Typography variant="h5" color="blue-gray">
-            Admin Dashboard
+            Lost and Found Dashboard
           </Typography>
         </div>
         <List>
