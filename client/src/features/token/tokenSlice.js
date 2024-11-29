@@ -3,11 +3,12 @@ import tokenService from './tokenService';
 import { logout } from '../auth/authSlice';
 
 // access token
-export const accessToken = createAsyncThunk('token/refresh_token', async (thunkAPI) => {
+export const accessToken = createAsyncThunk('token/refresh_token', async (_,thunkAPI) => {
     try {
         const response = await tokenService.accessToken();
 
         if (response.status === 400) {
+            console.log('Refresh token expired, dispatching logout');
             thunkAPI.dispatch(logout());
             return thunkAPI.rejectWithValue('Refresh token expired. Please login!');
         }
@@ -18,7 +19,7 @@ export const accessToken = createAsyncThunk('token/refresh_token', async (thunkA
             (error.response && error.response.data && error.response.data.message) ||
             error.message ||
             error.toString();
-
+        console.log('Refresh token expired, dispatching logout');
         thunkAPI.dispatch(logout());
         return thunkAPI.rejectWithValue(message);
     }

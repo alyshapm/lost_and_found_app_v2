@@ -65,6 +65,7 @@ async def delete_item(id: str):
 
 @items_router.put("/claim/{item_id}", response_description="Claim an item", response_model=ItemResponse)
 async def claim_item(item_id: str, claim: ClaimItem):
+    print("RECEIVED PAYLOAD: ", claim)
     # Define the updated fields
     update_fields = {
         "status": "claimed",

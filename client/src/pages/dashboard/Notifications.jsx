@@ -1,17 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Typography, Avatar, Card } from "@material-tailwind/react";
-import notifications from "../../data/notifications";
+import { useSelector, useDispatch } from "react-redux";
+import { markNotificationAsRead } from "../../features/notifications/notificationsSlice";
+import { formatDateTime } from "../../utils/formatDate";
 
 const Notifications = () => {
-  const [notificationList, setNotificationList] = useState(notifications);
+  const [notificationList, setNotificationList] = useState([]);
+  const { notifications } = useSelector((state) => state.notifications);
+  const { userInfor } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (notifications && userInfor) {
+      const filteredNotifications = notifications.filter(
+        (notification) => notification.user_id === userInfor._id
+      );
+
+      // Sort notifications by 'created_at' in descending order
+      const sortedNotifications = filteredNotifications.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      setNotificationList(sortedNotifications);
+    }
+  }, [notifications, userInfor]);
 
   const handleMarkAsRead = (id) => {
+    dispatch(markNotificationAsRead());
     setNotificationList((prevList) =>
       prevList.map((notification) =>
-        notification._id.$oid === id
-          ? { ...notification, read: true }
-          : notification
+        notification._id === id ? { ...notification, read: true } : notification
       )
     );
   };
@@ -22,6 +42,7 @@ const Notifications = () => {
     return null;
   };
 
+
   return (
     <div className="container mx-auto p-6">
       <Typography variant="h4" color="blue-gray" className="mb-6">
@@ -30,18 +51,13 @@ const Notifications = () => {
       <Card className="p-4 space-y-4">
         {notificationList.map((notification) => (
           <Link
-            key={notification._id.$oid}
+            key={notification._id}
             to={getNotificationLink(notification.type)}
-            onClick={() => handleMarkAsRead(notification._id.$oid)}
+            onClick={() => handleMarkAsRead(notification._id)}
             className={`flex items-start gap-4 p-4 border-b ${
               notification.read ? "bg-gray-100" : "bg-white"
             }`}
           >
-            <Avatar
-              variant="circular"
-              alt={notification.title}
-              src="/placeholder.svg?height=48&width=48"
-            />
             <div className="flex flex-col gap-1">
               <Typography
                 variant="small"
@@ -52,6 +68,14 @@ const Notifications = () => {
               </Typography>
               <Typography className="text-sm text-blue-gray-500">
                 {notification.message}
+              </Typography>
+              {/* Add the formatted date and time below */}
+              <Typography
+                variant="caption"
+                color="gray"
+                className="text-xs mt-1"
+              >
+                {formatDateTime(notification.created_at)}
               </Typography>
             </div>
           </Link>

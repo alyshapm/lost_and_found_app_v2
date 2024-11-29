@@ -1,5 +1,6 @@
 
 import userApi from "../../utils/userAxios";
+import axios from "axios";
 
 const AuthService = {
   async signin (userData) {
@@ -47,8 +48,9 @@ const AuthService = {
 
   async logout(){
     try {
-        const response = await userApi.get('/logout')
+        const response = await axios.get('http://localhost:5000/api/user/logout')
         localStorage.removeItem('user')
+        console.log("User logged out successfully");
         return response.data
     }catch (error) {
         console.error("Error Logging Out", error);

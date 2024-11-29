@@ -36,6 +36,7 @@ function DashboardLayout() {
 
   useEffect(() => {
     if (userInfor && userInfor._id) {
+      console.log("ID:"+userInfor._id)
       dispatch(fetchNotificationsByUser(userInfor._id));
     }
   }, [dispatch, userInfor]);
@@ -136,7 +137,7 @@ function DashboardLayout() {
                     size="sm"
                     alt="User"
                     className="border border-blue-500 p-0.5"
-                    src={"https://placehold.co/400"}
+                    src={userInfor?.personal_info?.avatar}
                   />
                 </Button>
               </MenuHandler>

@@ -66,7 +66,7 @@ function Dashboard() {
       (!dateFilter[1] || new Date(item.dateFound) <= dateFilter[1])
   );
 
-  console.log(filteredItemsSearch)
+  console.log("ITEMS"+ filteredItemsSearch)
 
   const handleClaimClick = (item) => {
     setSelectedItem(item);
