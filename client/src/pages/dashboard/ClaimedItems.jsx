@@ -5,12 +5,15 @@ import {
   CardBody,
   CardFooter,
   Button,
+  Chip,
 } from "@material-tailwind/react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchMeetings } from "../../features/meeting/meetingSlice";
 import { fetchItems, verifyClaim } from "../../features/item/itemSlice";
 import VerifyDialog from "../../components/dashboard/VerifyDialog";
 import { toast } from "react-hot-toast";
+
+import { MapPinIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 function ClaimedItems() {
   const dispatch = useDispatch();
@@ -22,13 +25,11 @@ function ClaimedItems() {
   const { filteredItems } = useSelector((state) => state.items);
   const { userInfor } = useSelector((state) => state.user);
 
-  // Fetch meetings and items data on component mount
   useEffect(() => {
     dispatch(fetchMeetings());
     dispatch(fetchItems());
   }, [dispatch]);
 
-  // Update claimedItemsByUser when filteredItems, meetings, or userInfor changes
   useEffect(() => {
     if (filteredItems?.items && meetings?.meetings && userInfor?._id) {
       const userClaimedItems = filteredItems.items.filter((item) =>
@@ -60,7 +61,6 @@ function ClaimedItems() {
           autoClose: 3000,
         });
 
-        // Update the claimed item’s status in local state after verification
         setClaimedItemsByUser((prevItems) =>
           prevItems.map((item) =>
             item._id === selectedItemId ? { ...item, status: "verified" } : item
@@ -85,21 +85,43 @@ function ClaimedItems() {
       {claimedItemsByUser.length === 0 ? (
         <Typography>No claimed items</Typography>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
           {claimedItemsByUser.map((item) => {
             const meeting = meetings.meetings.find(
               (m) => m.item_id === item._id && m.user_id === userInfor._id
             );
 
             return (
-              <Card key={item._id} className="mt-6">
-                <CardBody>
-                  <Typography variant="h5" color="blue-gray" className="mb-2">
-                    {item.name}
-                  </Typography>
-                  <Typography>Location: {item.found_at}</Typography>
-                  <Typography>Date Claimed: {item.claim_date}</Typography>
-                  <Typography>Status: {item.status}</Typography>
+              <Card key={item._id} className="flex flex-col h-full">
+                <CardBody className="flex-grow">
+                  <div className="">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                        {item.name}
+                      </h2>
+                      <Chip
+                        size="sm"
+                        variant="ghost"
+                        value={item.status}
+                        color={item.status === "claimed" ? "blue-gray" : "gray"}
+                      />
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                      <CalendarIcon className="h-4 w-4 mr-2 text-blue-500" />
+                      <span>Claimed: {item.claim_date}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600 mb-4">
+                      <MapPinIcon className="h-4 w-4 mr-2 text-blue-500" />
+                      <span>Location: {item.found_at}</span>
+                    </div>
+                    <div className="flex ">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        {item.status === "Ready for pickup"
+                          ? "Schedule Pickup"
+                          : "View Details"}
+                      </button>
+                    </div>
+                  </div>
                 </CardBody>
                 <CardFooter className="pt-0">
                   <Button>View Details</Button>

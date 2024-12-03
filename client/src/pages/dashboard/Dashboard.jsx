@@ -8,65 +8,50 @@ import {
   CardBody,
   CardFooter,
   Input,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Checkbox,
-  Dialog,
+  Select,
+  Chip,
+  Option,
 } from "@material-tailwind/react";
-import { MapPinIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  CalendarIcon,
+  TagIcon,
+  BuildingOfficeIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import ClaimItemDialog from "../../components/dashboard/ClaimitemDialog";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocations, setSelectedLocations] = useState([]);
-  const [dateFilter, setDateFilter] = useState([null, null]);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [campusFilter, setCampusFilter] = useState("all");
+
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
 
-  const locations = [
-    "Library",
-    "Student Center",
-    "Gym",
-    "Cafeteria",
-    "Parking Lot",
-    "Lecture Hall",
-  ];
   const dispatch = useDispatch();
-  const { filteredItems, isLoading, error } = useSelector((state) => state.items);
-  const {userInfor} = useSelector((state) => state.user);
+  const { filteredItems, isLoading, error } = useSelector(
+    (state) => state.items
+  );
+  const { userInfor } = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(fetchItems());
   }, [dispatch]);
 
-  const handleLocationFilterChange = (location) => {
-    if (selectedLocations.includes(location)) {
-      setSelectedLocations(selectedLocations.filter((loc) => loc !== location));
-    } else {
-      setSelectedLocations([...selectedLocations, location]);
-    }
-  };
-
-  const handleFilterSubmit = () => {
-    setIsFilterDialogOpen(false);
-  };
-
   const filteredItemsSearch = filteredItems.items?.filter(
     (item) =>
-      item.founded_by !== userInfor._id && item.status === "active" &&
-      (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-       item.location?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedLocations.length === 0 || selectedLocations.includes(item.location)) &&
-      (!dateFilter[0] || new Date(item.dateFound) >= dateFilter[0]) &&
-      (!dateFilter[1] || new Date(item.dateFound) <= dateFilter[1])
+      ((item.founded_by !== userInfor._id && item.status === "active") ||
+        item.status === "claimed") &&
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (categoryFilter === "all" || item.category === categoryFilter) &&
+      (campusFilter === "all" || item.campus === campusFilter)
   );
-
-  console.log("ITEMS"+ filteredItemsSearch)
 
   const handleClaimClick = (item) => {
     setSelectedItem(item);
@@ -74,131 +59,127 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex space-x-4 mb-6">
+    <div className="container mx-auto px-4 py-8 bg-gray-100">
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <div className="w-80">
           <Input
             type="text"
-            placeholder="Search for items..."
+            placeholder="Search items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-gray-900 focus:!border-t-gray-900 focus:ring-gray-900/10"
+            className="relative !border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-gray-900 focus:!border-t-gray-900 focus:ring-gray-900/10"
             labelProps={{
               className: "hidden",
             }}
-            containerProps={{ className: "min-w-[100px]" }}
+            icon={
+              <MagnifyingGlassIcon className="h-5 w-5 text-blue-gray-300" />
+            }
           />
-
-          <Button
-            variant="outlined"
-            className="text-gray-900 flex items-center"
-            onClick={() => setIsFilterDialogOpen(true)}
+        </div>
+        <div className="flex space-x-4 ml-auto">
+          <Select
+            value={categoryFilter}
+            onChange={(value) => setCategoryFilter(value || "all")}
+            label="Filter by category"
+            className="bg-white"
           >
-            <span className="mr-2">Filters</span>
-          </Button>
+            <Option value="all">All Categories</Option>
+            <Option value="Bags">Clothing</Option>
+            <Option value="Accessories">Accessories</Option>
+            <Option value="Books">Electrnics</Option>
+            <Option value="Books">Other</Option>
+          </Select>
+          <Select
+            value={campusFilter}
+            onChange={(value) => setCampusFilter(value || "all")}
+            label="Filter by campus"
+            className="bg-white"
+          >
+            <Option value="all">All Campuses</Option>
+            <Option value="Main Campus">JWC</Option>
+            <Option value="West Campus">FX Sudirman</Option>
+          </Select>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredItemsSearch?.map((item) => (
-            <Card key={item._id} className="mt-6">
-              <CardBody>
-                <div className="flex justify-between items-start mb-2">
-                  <Typography variant="h5" color="blue-gray">
-                    {item.name}
-                  </Typography>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">
-                      {item.category}
-                    </span>
-                    {(item.status === 'active' || item.status === 'claimed') && (
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {item.status}
-                      </span>
-                    )}
-                  </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+        {filteredItemsSearch?.map((item) => (
+          <Card key={item._id} className="flex flex-col h-full">
+            <CardBody className="flex-grow">
+              <div className="flex justify-between items-center mb-4">
+                <Typography variant="h5" color="blue-gray">
+                  {item.name}
+                </Typography>
+                <Chip
+                  size="sm"
+                  variant="ghost"
+                  value={item.status}
+                  color={item.status === "active" ? "green" : "blue-gray"}
+                />
+              </div>
+
+              <p className="mb-4">{item.item_desc}</p>
+
+              <div className="grid grid-cols-2 gap-y-2 text-sm">
+                <div className="flex items-center">
+                  <MapPinIcon className="h-4 w-4 mr-2 text-blue-500" />
+                  {item.found_at}
                 </div>
-                <Typography>Location: {item.found_at}</Typography>
-                <Typography>Date Found: {new Date(item.date_reported).toLocaleDateString()}</Typography>
-                <Typography>Time: {new Date(item.date_reported).toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit',})}</Typography>
-              </CardBody>
-              <CardFooter className="pt-0">
-                <Button onClick={() => handleClaimClick(item)}>
-                  Claim Item
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                <div className="flex items-center">
+                  <CalendarIcon className="h-4 w-4 mr-2 text-blue-500" />
+                  {new Date(item.date_reported).toLocaleDateString()}
+                </div>
+                <div className="flex items-center">
+                  <TagIcon className="h-4 w-4 mr-2 text-blue-500" />
+                  {item.category}
+                </div>
+                <div className="flex items-center">
+                  <BuildingOfficeIcon className="h-4 w-4 mr-2 text-blue-500" />
 
-        {filteredItemsSearch?.length === 0 && (
-          <Typography className="text-center text-gray-500 mt-8">
-            No items found. Try a different search term.
-          </Typography>
-        )}
-      </main>
+                  {item.campus}
+                </div>
+              </div>
+            </CardBody>
+            <CardFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-lg">
+              <Button
+                fullWidth
+                color={item.status === "active" ? "blue" : "gray"}
+                className={`${
+                  item.status === "active"
+                    ? "bg-blue-700 text-white"
+                    : "bg-gray-300 text-gray"
+                }`}
+                disabled={item.status === "claimed"}
+                onClick={() => handleClaimClick(item)}
+              >
+                {item.status === "active" ? (
+                  <div>
+                    <CheckCircleIcon className="h-5 w-5 mr-2 inline" />
+                    Claim Item
+                  </div>
+                ) : (
+                  <div>
+                    <XCircleIcon className="h-5 w-5 mr-2 inline" />
+                    Claimed
+                  </div>
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+
+      {filteredItemsSearch?.length === 0 && (
+        <Typography className="text-center text-gray-500 mt-8">
+          No items found. Try a different search term.
+        </Typography>
+      )}
 
       <ClaimItemDialog
         isOpen={isClaimDialogOpen}
         onClose={() => setIsClaimDialogOpen(false)}
         item={selectedItem}
       />
-
-      <Dialog
-        open={isFilterDialogOpen}
-        handler={setIsFilterDialogOpen}
-        size="md"
-      >
-        <div className="p-6">
-          <Typography variant="h5" className="mb-4">
-            Filters
-          </Typography>
-
-          <div className="mb-4">
-            <Typography variant="h6" className="mb-2">
-              Filter by Location:
-            </Typography>
-            {locations.map((location) => (
-              <div key={location} className="flex items-center mb-2">
-                <Checkbox
-                  checked={selectedLocations.includes(location)}
-                  onChange={() => handleLocationFilterChange(location)}
-                  label={location}
-                  color="blue"
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="mb-4">
-            <Typography variant="h6" className="mb-2">
-              Filter by Date:
-            </Typography>
-            <div className="flex space-x-2">
-              <DatePicker
-                selected={dateFilter[0]}
-                onChange={(date) => setDateFilter([date, dateFilter[1]])}
-                placeholderText="Start Date"
-                className="w-full px-4 py-2 border border-gray-300 rounded"
-              />
-              <DatePicker
-                selected={dateFilter[1]}
-                onChange={(date) => setDateFilter([dateFilter[0], date])}
-                placeholderText="End Date"
-                className="w-full px-4 py-2 border border-gray-300 rounded"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-4 mt-4">
-            <Button variant="text" onClick={() => setIsFilterDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleFilterSubmit}>Apply Filters</Button>
-          </div>
-        </div>
-      </Dialog>
     </div>
   );
 }

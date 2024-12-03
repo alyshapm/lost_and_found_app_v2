@@ -36,7 +36,6 @@ function DashboardLayout() {
 
   useEffect(() => {
     if (userInfor && userInfor._id) {
-      console.log("ID:"+userInfor._id)
       dispatch(fetchNotificationsByUser(userInfor._id));
     }
   }, [dispatch, userInfor]);
@@ -62,21 +61,17 @@ function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar className="max-w-full rounded-none px-4 py-3">
-        <div className="flex items-center justify-between gap-y-4 text-blue-gray-900">
-          <img src={AppLogo} alt="Logo" className="h-10 mr-2" />
+      <Navbar className="max-w-full rounded-none px-4 py-3 bg-gradient-to-r from-blue-900 to-blue-500 text-white shadow-lg border-none bg-opacity-100">
+        <div className="flex items-center justify-between gap-y-4 text-white">
+          {/* <img src={AppLogo} alt="Logo" className="h-10 mr-2" /> */}
+          <Link href="/" className="text-2xl font-bold transition-colors">
+            Lost & Found Dashboard
+          </Link>
           <div className="ml-auto flex gap-1">
-            {/* Notification Icon with Badge */}
             <Menu>
               <MenuHandler>
-                <IconButton variant="text" color="blue-gray">
-                  <Badge
-                    content={
-                      notifications.filter((notification) => !notification.read)
-                        .length
-                    }
-                    withBorder
-                  >
+                <IconButton variant="text" color="white">
+                  <Badge>
                     <BellIcon className="h-5 w-5" />
                   </Badge>
                 </IconButton>

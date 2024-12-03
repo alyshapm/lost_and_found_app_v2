@@ -69,13 +69,11 @@ function AdminLayout() {
       icon: InboxIcon,
       label: "Claimed Items",
       path: "/admin/claimed-items",
-      // badge: 14,
     },
     {
       icon: ChatBubbleBottomCenterTextIcon,
       label: "Active Meetings",
       path: "/admin/meetings",
-      // badge: 5,
     },
     {
       icon: ChatBubbleBottomCenterTextIcon,
