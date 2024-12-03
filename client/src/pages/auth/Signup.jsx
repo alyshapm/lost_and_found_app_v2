@@ -9,10 +9,18 @@ import {
   Option,
 } from "@material-tailwind/react";
 
+import { useDispatch } from "react-redux";
+import { signup } from "../../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 export const Signup = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
     name: "",
-    binusianId: "",
+    binusian_id: "",
     email: "",
     program: "",
     password: "",
@@ -28,20 +36,36 @@ export const Signup = () => {
     setFormData({ ...formData, program: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match", {
+        position: "top-center",
+        autoClose: 3000, // Auto-close after 3 seconds
+
+  
+      });
       return;
     }
 
     // Handle sign-up logic
     console.log("Form data:", formData);
+
+    try {
+      await dispatch(signup(formData)).unwrap();
+      toast.success("Confirmation email sent! ")
+      navigate('/email-confirmation');
+    } catch (error) {
+      toast.error('Signup failed', {
+        position: "top-center",
+        autoClose: 3000, // Auto-close after 3 seconds
+      });
+    }
   };
 
   const isButtonDisabled =
     !formData.name ||
-    !formData.binusianId ||
+    !formData.binusian_id ||
     !formData.email ||
     !formData.program ||
     !formData.password ||
@@ -68,8 +92,8 @@ export const Signup = () => {
             {/* Binusian ID Input */}
             <Input
               label="Binusian ID"
-              name="binusianId"
-              value={formData.binusianId}
+              name="binusian_id"
+              value={formData.binusian_id}
               onChange={handleChange}
               required
             />

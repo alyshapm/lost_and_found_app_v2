@@ -13,6 +13,7 @@ import { accessToken } from "./features/token/tokenSlice";
 import ProtectedUserRoutes from "./routes/ProtectedUserRoutes";
 import Unauthorized from "./common/Unauthorized";
 import RoleSelection from "./pages/auth/RoleSelection";
+import { EmailConfirmation } from "./pages/auth/emailConfirmation";
 
 export default function App() {
   const { user, isLoggedOut } = useSelector((state) => state.auth);
@@ -52,6 +53,7 @@ export default function App() {
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/select-role" element={<RoleSelection />} />
+        <Route path="/email-confirmation" element={<EmailConfirmation/>}/>
       </Routes>
     </Router>
   );

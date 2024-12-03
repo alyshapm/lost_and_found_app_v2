@@ -3,6 +3,7 @@ from db import itemsCollection, notifsCollection
 from models import Item, ItemsCollection, ItemResponse, ClaimItem, Notifications
 from bson import ObjectId
 from crud.items_crud import ItemsCrud
+from crud.notifications_crud import NotificationsCrud
 from datetime import datetime
 
 
@@ -13,6 +14,7 @@ items_router = APIRouter()
 async def create_item(item: Item):
 
     result = await ItemsCrud.create_item(item)
+
     if result.inserted_id:
          # Notify the founder for verification
         notification = Notifications(
@@ -23,7 +25,7 @@ async def create_item(item: Item):
         type="verification_request",
         read=False
         )
-        await notifsCollection.insert_one(notification.dict())
+        await NotificationsCrud.send_notification(notification)
 
         return {"message": "Item posted successfully"}
     

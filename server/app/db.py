@@ -6,15 +6,18 @@ load_dotenv()
 
 url = os.getenv("MONGO_URL")
 db = os.getenv("DB_NAME") 
+userDb = os.getenv("USER_DB")
 
 
 
 client = motor.motor_asyncio.AsyncIOMotorClient(url)
 db = client.get_database(db)
+userDb = client.get_database(userDb)
 itemsCollection = db.get_collection("items")
 meetingsCollection = db.get_collection('meetings')
 notifsCollection = db.get_collection("notifications")
 logsCollection = db.get_collection("logs")
+usersCollection = userDb.get_collection("users")
 
 
 # try:
